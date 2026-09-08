@@ -33,7 +33,9 @@ tổng kết có `NEW BEST` → node 2 mở với đường mòn tự vẽ → t
 sống**; tường nứt có đúng ba kết cục — không nấm thì đặc, có nấm mà chậm thì
 `thud`, có nấm và đủ đà thì vỡ.
 
-**Đã lên GitHub.** Remote `origin` là `LeVanAnhDuc/-web-game-duc-stomp`; `main` và
+**Đã lên GitHub.** Repo đổi tên từ `-web-game-duc-stomp` thành
+`web-game-duck-stomp` (GitHub giữ redirect cho tên cũ); **thư mục local vẫn là**
+`web-game-platformer` — thương hiệu đổi, đường dẫn không. Remote `origin` là `LeVanAnhDuc/web-game-duck-stomp`; `main` và
 `feat/core-game` đã push; **PR #1** đang mở. CI trên PR: job boundary/type/unit và
 job build/budget/e2e đều xanh.
 
@@ -62,7 +64,6 @@ không hẹn giờ mù.
 | Xác nhận tile pack có đúng 16px; nếu khác thì nền 320×180 và mọi file Tiled phải tính lại | ADR-0006 | cao | Con số này lan ra khắp nơi. Sai thì sửa muộn rất đắt |
 | Gọt `core/tuning` trên máy thật (đặc biệt `coyoteTimeMs`, `jumpBufferMs`, `accel`) | FR-03 | trung bình | Số hiện tại là điểm khởi đầu có lý, **chưa hề được cảm nhận bằng tay** |
 | Đo NFR-PERF-07 (thời gian tải trên Fast 3G) và NFR-PERF-05 (60fps) | NFR-PERF-05 · NFR-PERF-07 | trung bình | Cả hai còn là **ngân sách**, chưa phải số đo. Bundle thì đã đo rồi |
-| Thiết lập deploy GitHub Pages + tạo remote | — | trung bình | Chưa có `origin`. Game chưa ai ngoài máy này chơi được |
 | Kiểm `prefers-reduced-motion` tắt animation vẽ đường bản đồ | NFR-A11Y-05 | thấp | Có code nhánh đó nhưng chưa bật flag để xem |
 | Chơi thử trên điện thoại thật | NFR-A11Y-03 · NFR-A11Y-06 | thấp | Nút 72/88px chỉ mới đo trong DevTools, chưa bằng ngón tay thật |
 

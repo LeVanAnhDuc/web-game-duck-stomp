@@ -1,15 +1,15 @@
 # 🦆 DuckStomp — a two-button pixel platformer in the browser
 
-[![CI](https://github.com/LeVanAnhDuc/-web-game-duc-stomp/actions/workflows/ci.yml/badge.svg)](https://github.com/LeVanAnhDuc/-web-game-duc-stomp/actions/workflows/ci.yml)
-[![Deploy](https://github.com/LeVanAnhDuc/-web-game-duc-stomp/actions/workflows/deploy.yml/badge.svg)](https://github.com/LeVanAnhDuc/-web-game-duc-stomp/actions/workflows/deploy.yml)
-[![Release](https://img.shields.io/github/v/release/LeVanAnhDuc/-web-game-duc-stomp?sort=semver)](https://github.com/LeVanAnhDuc/-web-game-duc-stomp/releases)
+[![CI](https://github.com/LeVanAnhDuc/web-game-duck-stomp/actions/workflows/ci.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-duck-stomp/actions/workflows/ci.yml)
+[![Deploy](https://github.com/LeVanAnhDuc/web-game-duck-stomp/actions/workflows/deploy.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-duck-stomp/actions/workflows/deploy.yml)
+[![Release](https://img.shields.io/github/v/release/LeVanAnhDuc/web-game-duck-stomp?sort=semver)](https://github.com/LeVanAnhDuc/web-game-duck-stomp/releases)
 
 Six hand-designed levels on a world map, played with **exactly two controls** — so a
 phone and a keyboard play the same game rather than one being a port of the other.
 Runs entirely in the browser: no install, no account, no backend. Progress lives in
 `localStorage` on the player's own machine. Landscape only.
 
-**Play**: https://levananhduc.github.io/-web-game-duc-stomp/
+**Play**: https://levananhduc.github.io/web-game-duck-stomp/
 
 <!-- screenshot: pending first deploy -->
 

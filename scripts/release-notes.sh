@@ -92,7 +92,7 @@ if [ -n "$other" ]; then
   printf '\n'
 fi
 
-repo=${GITHUB_REPOSITORY:-LeVanAnhDuc/-web-game-duc-stomp}
+repo=${GITHUB_REPOSITORY:-LeVanAnhDuc/web-game-duck-stomp}
 if [ -n "$previous" ]; then
   printf -- '---\n\n[All changes](https://github.com/%s/compare/%s...%s)\n' \
     "$repo" "$previous" "$tag"
