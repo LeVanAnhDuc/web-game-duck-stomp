@@ -33,27 +33,36 @@ tổng kết có `NEW BEST` → node 2 mở với đường mòn tự vẽ → t
 sống**; tường nứt có đúng ba kết cục — không nấm thì đặc, có nấm mà chậm thì
 `thud`, có nấm và đủ đà thì vỡ.
 
-**Đã lên GitHub.** Repo đổi tên từ `-web-game-duc-stomp` thành
-`web-game-duck-stomp` (GitHub giữ redirect cho tên cũ); **thư mục local vẫn là**
-`web-game-platformer` — thương hiệu đổi, đường dẫn không. Remote `origin` là `LeVanAnhDuc/web-game-duck-stomp`; `main` và
-`feat/core-game` đã push; **PR #1** đang mở. CI trên PR: job boundary/type/unit và
-job build/budget/e2e đều xanh.
+**Đã phát hành.** Chơi được ở
+https://levananhduc.github.io/web-game-duck-stomp/ (kiểm: HTTP 200,
+`<title>DuckStomp</title>`).
 
-Hai cấu hình repo đã bật bằng quyền chủ repo (repo cùng họ đều đã có, và CI cần
-chúng mới xanh): **Dependabot alerts / dependency graph** — thiếu nó thì job
+Repo đổi tên từ `-web-game-duc-stomp` thành `web-game-duck-stomp` — GitHub giữ
+redirect cho tên cũ. **Thư mục local vẫn là `web-game-platformer`**: thương hiệu
+đổi, đường dẫn không, và đổi đường dẫn sẽ làm chết mọi link đang trỏ tới.
+
+Ba PR đã merge, remote chỉ còn `main`. Tag: **`v1.0.0`** (note nhóm theo
+Conventional Commits) và **`v1.0.1`** (ảnh README). Cả `ci.yml`, `deploy.yml`,
+`release.yml` đều đã chạy xanh thật trên `main`, không phải chỉ trên giấy.
+
+Hai cấu hình repo đã bật bằng quyền chủ repo, vì repo cùng họ đều đã có và cái
+thứ nhất là điều kiện để CI xanh: **dependency graph** — thiếu nó thì job
 `Dependency review` đỏ với đúng thông báo *"Dependency review is not supported on
-this repository"* — và **GitHub Pages, source = GitHub Actions**, tức bước thủ công
-một-lần mà ADR-0008 nói workflow không tự làm được. Pages đã có site nhưng **chưa
-deploy lần nào**: `deploy.yml` chỉ chạy khi push vào `main`, nên nó sẽ chạy lúc
-merge PR.
+this repository"* — và **Pages, source = GitHub Actions**, tức bước thủ công
+một-lần mà ADR-0008 nói `GITHUB_TOKEN` không làm được.
 
-Việc kế tiếp sau merge: chạy
-`node .claude/skills/readme-game/scripts/capture-screenshots.mjs web-game-platformer`
-từ thư mục `web-game/` để lấy ảnh thật vào `docs/assets/screenshot.png` — đó là
-mục duy nhất còn thiếu trong hợp đồng 13 mục của README, và nó cần một URL Pages
-đang sống. `docs/assets/screenshot.setup.mjs` đã viết và **đã chạy thử trên bản
-production ở máy**: nó lái Title → WorldMap → Game bằng `<html data-scene>` chứ
-không hẹn giờ mù.
+Ảnh README đã chụp bằng tool của skill `readme-game` trên URL live
+(`docs/assets/screenshot.png`, 7KB — pixel art màu phẳng nén rất tốt; tôi đã mở
+ra xem chứ không tin con số). `readme_audit.py` giờ báo **OK**: đủ 13 mục.
+
+**Một cái bẫy đã trả giá và đã ghi lại.** `[skip release]` chỉ được đọc từ
+**subject của commit trên `main`**. Đặt nó vào tiêu đề PR thì vô tác dụng: PR một
+commit thì squash dùng lại message của commit đó. Tôi đã mắc đúng lỗi này ở PR #2
+nên `v1.0.1` vẫn được cắt. Quan trọng hơn: **lẽ ra không nên dùng marker ở đó** —
+ghi chú của skill `readme-game` nói commit `docs:` tạo một patch release là thiết
+kế, marker chỉ dành cho commit docs đi cùng đợt push với một `feat:`. Nên
+`v1.0.1` là đúng và được giữ. Cơ chế đã kiểm lại ở PR #3: log job in nguyên văn
+`skipped: HEAD subject carries [skip release]` và không có `v1.0.2`.
 
 ## Việc tiếp theo
 
