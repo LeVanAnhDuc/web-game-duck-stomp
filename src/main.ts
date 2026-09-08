@@ -78,6 +78,27 @@ window.addEventListener('resize', () => {
 mountRotateGate(game)
 
 /**
+ * Publish which scene is on screen as `<html data-scene="...">`.
+ *
+ * Everything in a Phaser game lives inside one canvas, so from the outside a
+ * scene change is invisible — there is no DOM to wait for. Anything driving this
+ * page from a script is then reduced to guessing at timings, which is exactly how
+ * a screenshot ends up catching a loading bar or a menu.
+ *
+ * This ships in production, unlike the dev-only handle below, because the thing
+ * that needs it most runs against the deployed site: the README screenshot tool
+ * (`docs/assets/screenshot.setup.mjs`) has to know when the level is actually up.
+ * It is one attribute and it reveals nothing a player cannot already see.
+ */
+const publishScene = (): void => {
+  const active = game.scene.getScenes(true)
+  // HUD and overlays run on top of Game; the first entry is the one underneath.
+  const key = active[0]?.scene.key
+  if (key !== undefined) document.documentElement.dataset['scene'] = key
+}
+game.events.on(Phaser.Core.Events.POST_STEP, publishScene)
+
+/**
  * Dev-only handle on the running game.
  *
  * Stripped from production builds by the `import.meta.env.DEV` guard. It exists
@@ -86,5 +107,5 @@ mountRotateGate(game)
  * card, watch the node open" turns into guessing at jump timings.
  */
 if (import.meta.env.DEV) {
-  ;(window as unknown as { runup?: Phaser.Game }).runup = game
+  ;(window as unknown as { duckstomp?: Phaser.Game }).duckstomp = game
 }

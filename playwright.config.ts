@@ -36,7 +36,7 @@ export default defineConfig({
    *
    * Everything inside a Phaser game lives in one canvas, so from the outside a
    * scene transition is invisible: there is no DOM to query. The dev build exposes
-   * a `window.runup` handle (stripped from production by `import.meta.env.DEV`)
+   * a `window.duckstomp` handle (stripped from production by `import.meta.env.DEV`)
    * and that handle is what lets these tests assert "the map opened", "level 1 is
    * running" rather than only "a canvas exists".
    *

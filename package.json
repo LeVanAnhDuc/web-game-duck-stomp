@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "A 2D pixel platformer that runs in the browser. No install, no account, exactly two controls.",
+  "description": "DuckStomp - a 2D pixel platformer in the browser. No install, no account, exactly two controls.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -14,7 +14,10 @@
     "check": "npm run lint:core && npm run test && npm run build",
     "levels": "node scripts/make-level.mjs",
     "test:e2e": "playwright test",
-    "verify": "npm run lint:core && npm run test && npm run build && npm run test:e2e"
+    "verify": "npm run lint:core && npm run test && npm run build && npm run test:e2e",
+    "check:bundle": "node scripts/check-bundle-size.mjs dist",
+    "release:next": "bash scripts/next-version.sh --explain",
+    "release:notes": "bash scripts/release-notes.sh"
   },
   "dependencies": {
     "phaser": "^3.90.0"

@@ -30,7 +30,7 @@ async function pressKey(page: Page, keyCode: number, key: string): Promise<void>
 
 async function activeScene(page: Page, key: string): Promise<boolean> {
   return page.evaluate((name) => {
-    const game = (window as unknown as { runup?: { scene: { isActive(k: string): boolean } } }).runup
+    const game = (window as unknown as { duckstomp?: { scene: { isActive(k: string): boolean } } }).duckstomp
     return game === undefined ? false : game.scene.isActive(name)
   }, key)
 }
@@ -63,7 +63,7 @@ test.describe('smoke', () => {
 
   test('boots to the title screen', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle('RUNUP')
+    await expect(page).toHaveTitle('DuckStomp')
 
     // A canvas at an exact whole multiple of 320x180 is the visible proof of
     // NFR-GAME-01; the arithmetic itself is unit tested in core/scale.test.ts.
@@ -92,7 +92,7 @@ test.describe('smoke', () => {
 
     // The level parsed, spawned a player, and the clock is advancing.
     const state = await page.evaluate(() => {
-      const game = (window as unknown as { runup?: { scene: { getScene(k: string): unknown } } }).runup
+      const game = (window as unknown as { duckstomp?: { scene: { getScene(k: string): unknown } } }).duckstomp
       const scene = game?.scene.getScene('Game') as { level?: { totalCoins: number }; player?: { x: number } }
       return { coins: scene?.level?.totalCoins ?? -1, playerX: scene?.player?.x ?? -1 }
     })

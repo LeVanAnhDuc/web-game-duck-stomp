@@ -42,7 +42,7 @@ export class TitleScene extends Phaser.Scene {
     const centreY = (h - groundHeight) / 2
 
     this.add
-      .text(w / 2, centreY - Math.round(56 * s), 'RUNUP', {
+      .text(w / 2, centreY - Math.round(56 * s), 'DUCKSTOMP', {
         fontFamily: FONT.display,
         fontSize: `${Math.round(48 * s)}px`,
         color: CSS.ink,
