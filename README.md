@@ -11,10 +11,11 @@ Runs entirely in the browser: no install, no account, no backend. Progress lives
 
 **Play**: https://levananhduc.github.io/web-game-duck-stomp/
 
-<!-- screenshot: pending first deploy -->
+![DuckStomp level 1: three hearts, a coin counter and a running clock above a pixel
+platformer, the player standing beside a pit with a question block ahead](docs/assets/screenshot.png)
 
 **Status:** playable end to end. The art is generated placeholder geometry until the
-CC0 sprite pack is wired in — see ADR-0006. The repository folder is still
+CC0 sprite pack is wired in — see ADR-0006. The local folder is still
 `web-game-platformer`; the brand changed, the path did not.
 
 ## Features
