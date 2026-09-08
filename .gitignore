@@ -4,3 +4,21 @@
 .env
 .env.*
 !.env.example
+
+# Mockup UI — CỐ Ý không vào repo.
+# Canvas là một Artifact trên claude.ai; nguồn `.dc.html` + bundle đã seed chỉ là
+# công cụ trung gian. Cái gì hiện thực làm thì nằm trong code, cái gì giải thích
+# tại sao thì nằm trong docs/specs/ và docs/decisions/.
+/.design/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/.playwright/

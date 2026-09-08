@@ -1,8 +1,8 @@
 # Bất biến chịu lực
 
 > **Trả lời:** Sửa gì thì hệ thống sai **âm thầm** — test vẫn xanh mà kết quả vẫn sai?
-> **Trạng thái:** 🟡 mặc định đề xuất, chưa rà theo dự án
-> **Cập nhật:** — · commit —
+> **Trạng thái:** 🟢 đủ — đã rà theo dự án
+> **Cập nhật:** 2026-09-08 · commit —
 > **Cập nhật khi:** phát hiện một bất biến mới — thường là ngay sau khi ai đó vừa phá nó
 
 <!-- CÁCH ĐIỀN
@@ -20,15 +20,19 @@ GIỮ FILE NÀY < 40 DÒNG NỘI DUNG. Nó được đọc mỗi lần sửa cod
 KHÔNG chứa: quy ước format/naming (-> lint config), kiến trúc (-> architecture.md).
 -->
 
+Chín bất biến mặc định của scaffold nói về server, ORM, migration và soft-delete —
+đã xoá, vì dự án không có thứ nào trong đó. Đây là bất biến thật của **game này**.
+
 | # | Bất biến | Vi phạm thì sao |
 | --- | --- | --- |
-| 1 | Thời gian lưu ở **UTC**. Đổi múi giờ chỉ xảy ra ở tầng hiển thị | Lệch một ngày ở biên múi giờ. Test viết theo giờ máy vẫn xanh |
-| 2 | Mọi mutation kiểm quyền ở **server**, kể cả khi UI đã ẩn nút | Người dùng gọi API trực tiếp và sửa được dữ liệu của người khác |
-| 3 | Chỉ tầng service truy vấn datastore. Route/handler không query trực tiếp | Bỏ qua lớp kiểm quyền và validate nằm trong service |
-| 4 | Tiền và số cần chính xác **không dùng float** | Sai số tích luỹ, không tái tạo được, phát hiện sau nhiều tháng |
-| 5 | Bản ghi đang được tham chiếu thì **soft-delete**, không hard-delete | Dữ liệu tham chiếu mồ côi, báo cáo cũ thiếu dòng |
-| 6 | Tác vụ ghi quan trọng phải **idempotent** theo một khoá | Retry hoặc double-click tạo bản ghi trùng |
-| 7 | Migration **chỉ tiến**. Không sửa migration đã chạy ở bất kỳ môi trường nào | Lịch sử schema giữa các môi trường lệch nhau, không hoà giải được |
-| 8 | Thứ tự middleware: **auth → validate → handler** | Handler nhận dữ liệu chưa validate, hoặc validate chạy khi chưa biết người gọi |
-| 9 | Không tin `id` gửi từ client để xác định quyền sở hữu. Luôn đối chiếu với session | Truy cập chéo dữ liệu giữa các người dùng |
-| 10 | <!-- TODO: bất biến riêng của dự án này --> | |
+| 1 | **Độ phóng canvas chỉ là số nguyên.** Base 320×180, phóng ×2 ×3 ×4, letterbox phần dư | Pixel mờ và **rung** khi camera cuộn. Không có test nào đỏ, ảnh chụp vẫn có, chỉ mắt thấy sai |
+| 2 | `src/core/` **không import `phaser`** và không import `src/game/` | Mất khả năng unit test cảm giác điều khiển. Mọi lần gọt lại số thành một lần thử tay toàn bộ |
+| 3 | **Không có hình khối màn chơi nào trong code.** Màn chơi chỉ sống trong file Tiled | Màn chơi sống ở hai nơi và không ai biết nơi nào đúng. Sửa Tiled không thấy đổi gì |
+| 4 | Save trong localStorage **luôn có `version`**, và **không bao giờ đọc save mà không validate** | Save cũ tồn tại trên máy người chơi lâu hơn code. Đọc thẳng thì crash ở người chơi cũ, còn máy dev thì luôn sạch |
+| 5 | Máy trạng thái di chuyển nhận **delta time truyền vào**, không tự đọc `Date.now()` hay `performance.now()` | Test viết theo giờ máy vẫn xanh; game chạy khác nhau giữa màn 60Hz và 120Hz |
+| 6 | Vòng `update()` **không cấp phát object mới** | GC giật mỗi vài giây. Không lỗi, không log, chỉ cảm giác điều khiển tệ đi ở đúng lúc không nên |
+| 7 | `--gold` chỉ dùng cho xu / kỷ lục / CTA / focus; `--heart` chỉ dùng cho máu | Ngữ nghĩa màu vỡ. Người chơi học "vàng = đáng lấy" rồi gặp vàng ở chỗ vô nghĩa |
+| 8 | Rơi khỏi màn là **chết ngay, bỏ qua tim** — ngoại lệ duy nhất của luật sát thương | Người chơi rơi xuống vực mà chỉ mất một tim rồi lơ lửng ở đâu đó ngoài màn |
+| 9 | Đồng hồ **không reset khi hồi sinh** | Kỷ lục thời gian trở thành vô nghĩa, mà bảng tổng kết vẫn hiện số bình thường |
+| 10 | Mọi chuỗi hiển thị **chỉ ASCII** và đi qua bảng khoá | Chữ có dấu rơi sang font dự phòng — hỏng một phần, trông như lỗi ngẫu nhiên |
+| 11 | Nút cảm ứng hiện/ẩn theo **input thật đã nhận**, không theo user-agent | Laptop cảm ứng bị đoán sai; nút che màn chơi của người đang dùng bàn phím |

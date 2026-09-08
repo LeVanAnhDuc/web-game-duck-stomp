@@ -12,8 +12,9 @@
 | [`02-requirements/nfr.md`](02-requirements/nfr.md) | Ngưỡng nào áp cho **mọi** feature, để không phải nhắc lại … | 🟡 mặc định đề xuất, chưa rà theo dự án | thêm loại tài nguyên mới · thêm nhóm người dùng · sau sự c… |
 | [`03-design/architecture.md`](03-design/architecture.md) | Hệ thống ghép lại thế nào, ranh giới giữa các phần ở đâu? | 🔴 chưa điền | thêm/bỏ một module hoặc service · đổi cách hai module nói … |
 | [`03-design/invariants.md`](03-design/invariants.md) | Sửa gì thì hệ thống sai **âm thầm** — test vẫn xanh mà kết… | 🟡 mặc định đề xuất, chưa rà theo dự án | phát hiện một bất biến mới — thường là ngay sau khi ai đó … |
-| [`04-state/backlog.md`](04-state/backlog.md) | Đang làm gì, tiếp theo làm gì, và đang nợ những gì? | 🔴 chưa điền | bắt đầu/kết thúc một việc · brainstorm ra việc mới · cố ý … |
-| [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 0 ADR | mỗi quyết định kỹ thuật |
+| [`04-state/backlog.md`](04-state/backlog.md) | Đang làm gì, tiếp theo làm gì, và đang nợ những gì? | 🟡 một phần — §Đang làm và §Nợ đã thật; §Việ… | bắt đầu/kết thúc một việc · brainstorm ra việc mới · cố ý … |
+| [`design-system/platformer/MASTER.md`](design-system/platformer/MASTER.md) | Màu, chữ, khoảng cách, component của UI game này lấy ở đâu… | 🟡 một phần — palette chrome đã chốt và đã đ… | đổi màu/chữ · thêm một component UI mới · sau khi sample p… |
+| [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 5 ADR | mỗi quyết định kỹ thuật |
 | [`../.env.example`](../.env.example) | cần biến nào để chạy được dự án này? | 🔴 chưa điền | code đọc một biến mới (process.env.X / os.getenv / os.Gete… |
 <!-- END:auto -->
 
