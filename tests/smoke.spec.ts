@@ -63,7 +63,7 @@ test.describe('smoke', () => {
 
   test('boots to the title screen', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle('DuckStomp')
+    await expect(page).toHaveTitle('Duck Stomp')
 
     // A canvas at an exact whole multiple of 320x180 is the visible proof of
     // NFR-GAME-01; the arithmetic itself is unit tested in core/scale.test.ts.

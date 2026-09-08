@@ -13,7 +13,7 @@
 
 ---
 
-**Dự án:** DuckStomp (game platformer 2D pixel-art, web, chơi ngang)
+**Dự án:** Duck Stomp (game platformer 2D pixel-art, web, chơi ngang)
 **Slug thư mục:** `platformer` — giữ nguyên có chủ ý; đổi slug là đổi đường dẫn
 **Stack:** Phaser 3.90 + TypeScript + Vite · static, không backend
 **Art game:** Pixel Adventure (Pixel Frog) — CC0 1.0 Universal

@@ -35,7 +35,13 @@ sống**; tường nứt có đúng ba kết cục — không nấm thì đặc,
 
 **Đã phát hành.** Chơi được ở
 https://levananhduc.github.io/web-game-duck-stomp/ (kiểm: HTTP 200,
-`<title>DuckStomp</title>`).
+`<title>Duck Stomp</title>`).
+
+**Tên hiển thị đổi từ `DuckStomp` thành `Duck Stomp`** (2026-09-08) — cả họ game
+trong workspace dùng dạng `Duck X` có khoảng trắng (Duck Runner, Duck Caro, Duck
+Mines, Duck Solitaire, Duck Defense), `DuckStomp` là cái duy nhất viết liền. Slug
+repo `web-game-duck-stomp` **không** đổi, nên URL Pages không đổi. Handle debug
+`window.duckstomp` giữ nguyên: đó là identifier, không phải tên hiển thị.
 
 Repo đổi tên từ `-web-game-duc-stomp` thành `web-game-duck-stomp` — GitHub giữ
 redirect cho tên cũ. **Thư mục local vẫn là `web-game-platformer`**: thương hiệu

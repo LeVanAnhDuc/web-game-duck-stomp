@@ -1,4 +1,4 @@
-# 🦆 DuckStomp — a two-button pixel platformer in the browser
+# 🦆 Duck Stomp — a two-button pixel platformer in the browser
 
 [![CI](https://github.com/LeVanAnhDuc/web-game-duck-stomp/actions/workflows/ci.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-duck-stomp/actions/workflows/ci.yml)
 [![Deploy](https://github.com/LeVanAnhDuc/web-game-duck-stomp/actions/workflows/deploy.yml/badge.svg)](https://github.com/LeVanAnhDuc/web-game-duck-stomp/actions/workflows/deploy.yml)
@@ -11,7 +11,7 @@ Runs entirely in the browser: no install, no account, no backend. Progress lives
 
 **Play**: https://levananhduc.github.io/web-game-duck-stomp/
 
-![DuckStomp level 1: three hearts, a coin counter and a running clock above a pixel
+![Duck Stomp level 1: three hearts, a coin counter and a running clock above a pixel
 platformer, the player standing beside a pit with a question block ahead](docs/assets/screenshot.png)
 
 **Status:** playable end to end. The art is generated placeholder geometry until the
