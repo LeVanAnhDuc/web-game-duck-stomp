@@ -25,3 +25,10 @@ npm-debug.log*
 
 # Playwright MCP scratch output
 /.playwright-mcp/
+
+# Ảnh chụp khi kiểm bằng tay. Ảnh THẬT của repo nằm ở docs/assets/ và assets/;
+# không có PNG nào thuộc về thư mục gốc. Luật này tồn tại vì ba ảnh debug đã
+# từng bị `git add -A` quét vào một commit (xem 74ada68).
+/*.png
+/*.jpg
+/*.webp
