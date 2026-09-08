@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "DuckStomp - a 2D pixel platformer in the browser. No install, no account, exactly two controls.",
+  "description": "Duck Stomp - a 2D pixel platformer in the browser. No install, no account, exactly two controls.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
