@@ -8,7 +8,14 @@
 <!-- BEGIN:auto — bảng dưới do .claude/scripts/docs-regen.sh sinh từ các file ADR. Đừng sửa tay. -->
 | ID | Tiêu đề | Ngày | Trạng thái |
 | --- | --- | --- | --- |
-| — | _chưa có ADR nào_ | — | — |
+| [ADR-0001](0001-use-phaser-arcade-physics.md) | Dùng Phaser 3.90 + Arcade Physics + Tiled, không dùng PixiJS | 2026-09-08 | accepted |
+| [ADR-0002](0002-design-tokens-override-generator.md) | Palette đặt tên theo nghĩa trong game, override đề xuất của ui-ux-pro-max | 2026-09-08 | accepted |
+| [ADR-0003](0003-no-lives-checkpoint-respawn.md) | Không có hệ mạng và không có game over; chết là hồi sinh ở checkpoint | 2026-09-08 | accepted |
+| [ADR-0004](0004-force-landscape-two-controls.md) | Bắt buộc màn hình ngang, và đúng hai điều khiển khi đang chơi | 2026-09-08 | accepted |
+| [ADR-](0005-english-ascii-ui-strings.md) | Chuỗi hiển thị dùng tiếng Anh, toàn bộ ASCII | 2026-09-08 | accepted |
+| [ADR-0006](0006-generated-placeholder-textures.md) | Sinh texture placeholder trong code, đằng sau một lớp đổi được sang atlas thật | 2026-09-08 | accepted |
+| [ADR-0007](0007-synthesised-webaudio-sfx.md) | SFX tổng hợp bằng WebAudio, không dùng file âm thanh | 2026-09-08 | accepted |
+| [ADR-0008](0008-pages-enabled-by-hand.md) | Bật GitHub Pages bằng tay một lần, không để workflow tự bật | 2026-09-08 | accepted |
 <!-- END:auto -->
 
 Trạng thái: `accepted` · `superseded by ADR-00xx` · `deprecated`

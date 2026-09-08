@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Không bao giờ huỷ một release giữa chừng: lần chạy bị cắt có thể để lại một tag
+# không có release nào gắn vào.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Đủ lịch sử và đủ tag: cả số phiên bản lẫn nội dung note đều suy ra từ
+          # những gì đã xảy ra kể từ tag trước.
+          fetch-depth: 0
+
+      # Hai bước dưới là script nằm trong repo chứ không phải shell chôn trong
+      # file này, để chạy thử được ngay trên máy:
+      #   npm run release:next
+      #   npm run release:notes v1.1.0
+      # Một quy trình release chỉ kiểm được bằng cách đẩy lên main là quy trình
+      # không ai kiểm.
+      - name: Decide the next version
+        id: version
+        run: |
+          next=$(bash scripts/next-version.sh --explain)
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+
+      - name: Compose the release notes
+        if: steps.version.outputs.next != ''
+        run: bash scripts/release-notes.sh "${{ steps.version.outputs.next }}" > RELEASE_NOTES.md
+
+      - name: Publish
+        if: steps.version.outputs.next != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.next }}" \
+            --target "$GITHUB_SHA" \
+            --title "${{ steps.version.outputs.next }}" \
+            --notes-file RELEASE_NOTES.md

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="color-scheme" content="dark" />
+    <title>DuckStomp</title>
+    <!-- Inline so there is no second request, and no 404 when there is no file. -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23131735'/%3E%3Crect x='2' y='1' width='4' height='6' fill='%23F2B33D'/%3E%3Crect x='3' y='2' width='1' height='4' fill='%23131735'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Jersey+15&family=Pixelify+Sans:wght@400..700&display=swap"
+    />
+    <style>
+      /* Tokens: docs/design-system/platformer/MASTER.md. Letterbox is --night-deep,
+         which is also the page background, so the canvas edge is invisible. */
+      :root {
+        --night-deep: #131735;
+        --night: #262e5e;
+        --panel: #2e376b;
+        --ink: #f2ecdf;
+        --ink-dim: #aeb4da;
+        --gold: #f2b33d;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--night-deep);
+        color: var(--ink);
+        font-family: 'Pixelify Sans', ui-monospace, monospace;
+        overflow: hidden;
+        /* The game owns every gesture inside the canvas: no double-tap zoom, no
+           pull-to-refresh eating an upward swipe, no text selection on a long press. */
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #app {
+        display: grid;
+        place-items: center;
+        height: 100%;
+      }
+      #app canvas {
+        display: block;
+        /* Belt and braces for invariants #1: even if a browser tries to smooth the
+           upscale, say no. The integer zoom itself is computed in core/scale.ts. */
+        image-rendering: pixelated;
+      }
+
+      /* Rotate gate (FR-16). Hidden by default; rotateGate.ts toggles [hidden].
+         No text anywhere in it — nothing to translate (ADR-0005). */
+      #rotate-gate {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        background: var(--night-deep);
+      }
+      #rotate-gate[hidden] {
+        display: none;
+      }
+      .rotate-row {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      .rotate-phone {
+        background: var(--night-deep);
+        border: 4px solid var(--ink-dim);
+        width: 72px;
+        height: 128px;
+        opacity: 0.55;
+      }
+      .rotate-phone--goal {
+        border-color: var(--gold);
+        width: 128px;
+        height: 72px;
+        opacity: 1;
+      }
+      .rotate-arrow {
+        color: var(--gold);
+      }
+      /* The one animation outside the canvas, and it is essential rather than
+         decorative: it is what says "turn it" without a word. */
+      @media (prefers-reduced-motion: no-preference) {
+        .rotate-phone--goal {
+          animation: nudge 1.6s steps(2, end) infinite;
+        }
+      }
+      @keyframes nudge {
+        0%,
+        60%,
+        100% {
+          transform: none;
+        }
+        30% {
+          transform: translateX(6px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <div id="rotate-gate" hidden>
+      <div class="rotate-row">
+        <div class="rotate-phone"></div>
+        <svg class="rotate-arrow" width="56" height="40" viewBox="0 0 14 10" shape-rendering="crispEdges" aria-hidden="true">
+          <g fill="currentColor">
+            <rect x="1" y="4" width="12" height="2" />
+            <rect x="9" y="2" width="2" height="2" />
+            <rect x="11" y="3" width="2" height="2" />
+            <rect x="9" y="6" width="2" height="2" />
+            <rect x="11" y="5" width="2" height="2" />
+          </g>
+        </svg>
+        <div class="rotate-phone rotate-phone--goal"></div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

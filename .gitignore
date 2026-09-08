@@ -4,3 +4,31 @@
 .env
 .env.*
 !.env.example
+
+# Mockup UI — CỐ Ý không vào repo.
+# Canvas là một Artifact trên claude.ai; nguồn `.dc.html` + bundle đã seed chỉ là
+# công cụ trung gian. Cái gì hiện thực làm thì nằm trong code, cái gì giải thích
+# tại sao thì nằm trong docs/specs/ và docs/decisions/.
+/.design/
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/.playwright/
+
+# Playwright MCP scratch output
+/.playwright-mcp/
+
+# Ảnh chụp khi kiểm bằng tay. Ảnh THẬT của repo nằm ở docs/assets/ và assets/;
+# không có PNG nào thuộc về thư mục gốc. Luật này tồn tại vì ba ảnh debug đã
+# từng bị `git add -A` quét vào một commit (xem 74ada68).
+/*.png
+/*.jpg
+/*.webp
