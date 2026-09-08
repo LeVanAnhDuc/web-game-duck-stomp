@@ -1,4 +1,4 @@
-# Tài liệu dự án `web-game/web-game-platformer`
+# Tài liệu dự án `web-game-platformer`
 
 ## Bản đồ
 
