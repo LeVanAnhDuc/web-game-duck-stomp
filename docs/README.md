@@ -14,7 +14,7 @@
 | [`03-design/invariants.md`](03-design/invariants.md) | Sửa gì thì hệ thống sai **âm thầm** — test vẫn xanh mà kết… | 🟢 đủ — đã rà theo dự án | phát hiện một bất biến mới — thường là ngay sau khi ai đó … |
 | [`04-state/backlog.md`](04-state/backlog.md) | Đang làm gì, tiếp theo làm gì, và đang nợ những gì? | 🟢 đủ | bắt đầu/kết thúc một việc · brainstorm ra việc mới · cố ý … |
 | [`design-system/platformer/MASTER.md`](design-system/platformer/MASTER.md) | Màu, chữ, khoảng cách, component của UI game này lấy ở đâu… | 🟡 một phần — palette chrome đã chốt và đã đ… | đổi màu/chữ · thêm một component UI mới · sau khi sample p… |
-| [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 7 ADR | mỗi quyết định kỹ thuật |
+| [`decisions/`](decisions/README.md) | Tại sao lại làm thế này? | 8 ADR | mỗi quyết định kỹ thuật |
 | [`../.env.example`](../.env.example) | cần biến nào để chạy được dự án này? | 🟢 đủ — dự án KHÔNG cần biến môi trường nào | code đọc một biến mới (process.env.X / import.meta.env.X /… |
 <!-- END:auto -->
 

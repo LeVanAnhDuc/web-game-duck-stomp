@@ -1,0 +1,59 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Mỗi lần một deploy, và không bao giờ huỷ giữa chừng: một deploy bị cắt ngang có
+# thể để site phục vụ một artifact mới upload được một nửa.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Test chạy lại ở đây thay vì tin vào workflow CI: hai workflow này độc lập,
+      # và một deploy giả định rằng có một lần chạy xanh mà nó không nhìn thấy là
+      # một deploy sớm muộn sẽ đẩy bản đỏ lên.
+      - run: npm test
+
+      # Không cần biến môi trường nào cho đường dẫn con. `vite.config.ts` đặt
+      # `base: './'` nên mọi đường dẫn asset là tương đối và cùng một bản dist
+      # chạy được ở gốc domain lẫn ở /<tên-repo>/ — kể cả khi tên repo đổi.
+      - run: npm run build
+
+      # KHÔNG dùng `enablement: true`: nó cần quyền admin repo mà GITHUB_TOKEN
+      # không có, và sẽ đỏ với "Resource not accessible by integration". Bật Pages
+      # là một bước một-lần làm ngoài workflow — xem ADR-0008.
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
