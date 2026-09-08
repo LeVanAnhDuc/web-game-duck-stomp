@@ -11,12 +11,17 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint:core": "node scripts/check-core-boundary.mjs",
-    "check": "npm run lint:core && npm run test && npm run build"
+    "check": "npm run lint:core && npm run test && npm run build",
+    "levels": "node scripts/make-level.mjs",
+    "test:e2e": "playwright test",
+    "verify": "npm run lint:core && npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {
     "phaser": "^3.90.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.5.0",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",
     "vitest": "^5.0.0"

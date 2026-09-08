@@ -1,7 +1,7 @@
 # Đang làm · Việc tiếp theo · Nợ
 
 > **Trả lời:** Đang làm gì, tiếp theo làm gì, và đang nợ những gì?
-> **Trạng thái:** 🟡 một phần — §Đang làm và §Nợ đã thật; §Việc tiếp theo chưa gắn FR vì scope.md còn 🔴
+> **Trạng thái:** 🟢 đủ
 > **Cập nhật:** 2026-09-08 · commit —
 > **Cập nhật khi:** bắt đầu/kết thúc một việc · brainstorm ra việc mới · cố ý đi đường tắt
 
@@ -18,51 +18,43 @@ KHÔNG chứa: tính năng ngoài phạm vi (-> 01-product/overview.md §Non-Goa
 
 ## Đang làm
 
-**Brainstorm thiết kế game — chưa có một dòng code nào, chưa có `package.json`.**
+**Không có việc nào đang dở.** Feature `core-game` đã xong: 19/19 FR ở `scope.md`
+là `xong`, và mỗi cái đã được **nhìn thấy chạy trong browser thật**, không chỉ
+compile.
 
-Đã chốt qua đối thoại (mỗi cái có ADR): thể loại platformer hướng Mario · 6 màn
-tay-thiết-kế · static 100%, không backend, localStorage · desktop và cảm ứng ngang
-hàng · bắt buộc màn hình ngang · đúng 2 điều khiển khi chơi · 3 tim + nấm đổi sprite
-cho năng lực phá khối · bản đồ thế giới cách điệu dùng lại pack · SFX không nhạc ·
-Phaser 3.90 + Arcade + Tiled + TypeScript + Vite + npm.
+Trạng thái kiểm chứng lúc dừng: `npm run verify` xanh — 96 unit test (`core/`),
+9 smoke test Playwright trên ba khổ, `tsc` sạch, build 332.81 kB gzip.
 
-`design-bootstrap` đã chạy đủ 3 bước → `docs/design-system/platformer/MASTER.md`
-(🟡) + ADR-0002. Wireframe ASCII 4 màn hình đã được duyệt trong hội thoại.
+Đã chơi và nhìn tận mắt: Title → bản đồ → màn 1 → chạy/nhảy/qua vực → ăn xu →
+đội khối `?` → chết ở vực và hồi sinh (đồng hồ **không** reset) → về đích → thẻ
+tổng kết có `NEW BEST` → node 2 mở với đường mòn tự vẽ → tạm dừng → cổng xoay màn
+ở khổ dọc → nút cảm ứng hiện/ẩn theo input thật. Đo bằng cách lái game:
+đạp walker thì nó chết và nhân vật bật lên; rơi lên spiker thì **mất tim mà spiker
+sống**; tường nứt có đúng ba kết cục — không nấm thì đặc, có nấm mà chậm thì
+`thud`, có nấm và đủ đà thì vỡ.
 
-**Dừng ở bước:** canvas mockup đã dựng và đã lưu — 16 artboard (5 màn hình × 3 khổ
-`667×375 · 1024×768 · 1440×900`, cộng màn chặn xoay 375×667 chỉ có một bản).
-File nguồn ở `.design/*.dc.html` + `canvas.json`; mọi lần sửa là seed lại từ đó.
-**Đang chờ người dùng duyệt.** Mockup được duyệt **là** cổng duyệt của
-brainstorming, không có cổng thứ hai — duyệt xong mới viết `design.md` và `plan.md`.
-
-Đã chốt thêm trong lúc dựng mockup: nhãn UI **tiếng Anh, toàn ASCII** (ADR-0005 —
-font pixel không có glyph tiếng Việt có dấu thanh); thang chữ của `MASTER.md` là
-thang ở **zoom 2**, tablet ×1.5 và desktop ×2. Tên game `RUNUP` chỉ là **đề xuất**,
-chưa chốt.
-
-**Đang chặn:** chưa tải pack **Pixel Adventure (Pixel Frog)** — CC0 đã xác nhận từ
-trang gốc, nhưng itch.io tải qua luồng trình duyệt. Chưa tải thì chưa sample được
-palette thật và chưa xác nhận được kích thước tile.
-
-**Chưa viết:** `docs/specs/<feature>/design.md`, `plan.md`, và 4 file tier-1 còn 🔴
-(`overview.md` §Non-Goals đã có nội dung để điền — xem §Việc tiếp theo).
+Việc kế tiếp là mở PR. Nhánh `feat/core-game`, chưa có `origin` nào để push.
 
 ## Việc tiếp theo
 
 | Việc | Liên quan | Ưu tiên | Vì sao ưu tiên đó |
 | --- | --- | --- | --- |
-| Tải pack Pixel Adventure 1 + 2, đối chiếu với danh mục địch/hazard/khối đã thiết kế | ADR-0002 | cao | Chặn hai mục 🟡 của `MASTER.md`, và có thể chặn cả thiết kế nếu pack thiếu địch gai hoặc địch bay |
-| Canvas mockup 5 màn hình × 3 khổ, rồi xin duyệt | — | cao | Là cổng duyệt của brainstorming. Bố cục quyết định file nào mỗi task chạm, nên `writing-plans` phải chờ nó |
-| Điền `overview.md` — §Non-Goals đã có 5 mục bị từ chối có lý do | — | cao | File này là nơi duy nhất chặn scope creep, và đang 🔴 |
-| Cấp `FR-xx` trong `scope.md` + `US-xx` trong `journeys.md` | — | cao | Không có ID thì ADR, commit và test không tham chiếu được gì |
-| Rà `nfr.md`: xoá phần Security/Data/PII và các ngưỡng endpoint/migration | — | trung bình | Không có server, không có DB, không có PII. Giữ nguyên là để lại tài liệu **sai**, không phải tài liệu thừa |
-| Thêm 3 bất biến riêng vào `invariants.md`; xoá 9 bất biến mặc định về server/ORM | — | trung bình | Bất biến thật của dự án này: phóng pixel số nguyên · `core/` không import `phaser` · không hình khối màn chơi trong code · save luôn có `version` |
-| Đo bundle Phaser thật rồi mới đặt ngưỡng thời gian tải ở `nfr.md` | ADR-0001 | trung bình | ADR-0001 ghi rõ con số này chưa đo |
+| Tải pack **Pixel Adventure** (+ pack 2) và thay art thật | ADR-0006 | cao | Game đang trông như bản thử. Đây là thứ duy nhất còn giữa "chạy được" và "chơi được cho người khác xem" |
+| Sample palette pack rồi rà lại 9 token, gỡ 🟡 của `MASTER.md` | ADR-0002 | cao | Nếu palette pack lệch hue với UI thì phải sửa **token**, không sửa sprite |
+| Xác nhận tile pack có đúng 16px; nếu khác thì nền 320×180 và mọi file Tiled phải tính lại | ADR-0006 | cao | Con số này lan ra khắp nơi. Sai thì sửa muộn rất đắt |
+| Gọt `core/tuning` trên máy thật (đặc biệt `coyoteTimeMs`, `jumpBufferMs`, `accel`) | FR-03 | trung bình | Số hiện tại là điểm khởi đầu có lý, **chưa hề được cảm nhận bằng tay** |
+| Đo NFR-PERF-07 (thời gian tải trên Fast 3G) và NFR-PERF-05 (60fps) | NFR-PERF-05 · NFR-PERF-07 | trung bình | Cả hai còn là **ngân sách**, chưa phải số đo. Bundle thì đã đo rồi |
+| Thiết lập deploy GitHub Pages + tạo remote | — | trung bình | Chưa có `origin`. Game chưa ai ngoài máy này chơi được |
+| Kiểm `prefers-reduced-motion` tắt animation vẽ đường bản đồ | NFR-A11Y-05 | thấp | Có code nhánh đó nhưng chưa bật flag để xem |
+| Chơi thử trên điện thoại thật | NFR-A11Y-03 · NFR-A11Y-06 | thấp | Nút 72/88px chỉ mới đo trong DevTools, chưa bằng ngón tay thật |
 
 ## Nợ kỹ thuật — cố ý làm tạm
 
 | Chỗ nào | Đã đánh đổi gì | Vì sao chấp nhận | Khi nào buộc phải trả |
 | --- | --- | --- | --- |
-| `MASTER.md` §Palette | 9 token màu chốt **trước khi** sample palette thật của pack | Pack tải qua luồng trình duyệt nên chưa có; chặn ở đây thì cả bước design đứng. Palette là lựa chọn thiết kế độc lập, chỉ cần kiểm hoà sắc sau | Ngay sau khi tải pack. Lệch thì sửa **token**, không sửa sprite |
-| `MASTER.md` §Lưới pixel | Base `320×180` chọn theo lý do phóng-số-nguyên, chưa biết tile pack bao nhiêu px | 320×180 phóng nguyên lên 640×360/960×540/1280×720 nên đúng bất kể tile size; chỉ số tile nhìn thấy là chưa chắc | Ngay sau khi tải pack, trước khi vẽ màn đầu tiên trong Tiled |
-| `docs/01-product/glossary.md` | Để ⚪ chưa áp dụng | Chưa có code nên chưa có cặp "tên nghiệp vụ ↔ tên trong code" nào để khoá | Khi `core/` có module đầu tiên |
+| `src/game/textures.ts` | Toàn bộ art sinh bằng code, không phải pack thật | itch.io phát hành qua luồng trình duyệt; chặn ở đây thì cả dự án đứng vì một file 204 kB. Mọi texture nằm sau một module nên thay là sửa một chỗ (ADR-0006) | Ngay khi có pack trong `assets/` |
+| `MASTER.md` §Palette, §Lưới pixel | 9 token màu và nền 320×180 chốt **trước khi** sample pack | Palette là lựa chọn thiết kế độc lập; chỉ cần kiểm hoà sắc sau | Cùng lúc với việc trên |
+| `src/main.ts` — `window.runup` khi `import.meta.env.DEV` | Một cửa debug lộ ra ở bản dev | Mọi thứ trong Phaser nằm trong một canvas, nên từ ngoài không quan sát được scene nào đang chạy. Không có nó thì smoke test chỉ khẳng định được "có một canvas". Bị strip khỏi bản production | Khi có cách quan sát scene mà không cần cửa này |
+| `playwright.config.ts` | Smoke test chạy trên **dev bundle**, không phải bản production | Vì lý do trên. Bản production được `npm run build` che (type-check + build, lỗi là chặn cứng) | Nếu từng có lỗi chỉ xuất hiện ở bản production |
+| `src/core/tuning.ts` | Mọi con số cảm giác điều khiển là **suy ra, chưa gọt bằng tay** | Chúng có cơ sở (tầm nhảy 4.9 tile khớp với luật vực ≤ 4 tile trong `make-level.mjs`) và test chỉ khoá **quan hệ** giữa chúng, nên gọt lại rẻ | Sau lần chơi thử đầu tiên trên máy thật |
+| Không có unit test nào cho `src/game/` | Toàn bộ tầng Phaser chỉ được bọc bởi 9 smoke test + kiểm bằng tay | Có ý thức, ghi ở `design.md` §9: E2E cho physics chập chờn, và test bị tắt tệ hơn test không có. Luật quan trọng nhất (cảm giác điều khiển) đã nằm trong `core/` và có 25 test | Nếu tầng `game/` bắt đầu tự sinh regression |

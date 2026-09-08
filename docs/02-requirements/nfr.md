@@ -37,7 +37,8 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 | NFR-PERF-05 | Giữ **60 fps** trong lúc chơi ở cả ba khổ đã kiểm; không có frame nào > 32ms | Phaser debug FPS + Performance panel, đi hết một màn |
 | NFR-PERF-06 | Vòng `update()` **không cấp phát object mới** mỗi frame — không tạo array/object/closure trong đó | review code + Memory panel: sawtooth GC không được xuất hiện khi đứng yên |
 | NFR-PERF-07 | Từ mở link tới màn Title chơi được: **≤ 5s** trên profile *Fast 3G* của DevTools. Đây là **ngân sách**, chưa phải số đo | Network throttling + Performance panel. ADR-0001 nói rõ bundle Phaser chưa được đo |
-| NFR-PERF-08 | Tổng asset tải lần đầu **≤ 3 MB** đã gzip | `du` trên `dist/` + Network panel |
+| NFR-PERF-08 | Tổng asset tải lần đầu **≤ 3 MB** đã gzip. **Đo 08.09.2026: 332.81 kB gzip** (1,246 kB raw) — đạt, dư gần 9 lần | `npm run build` in ra số; Network panel để kiểm lại |
+| NFR-PERF-09 | Một bước physics **không bao giờ vượt 50ms**, bất kể frame trước cách bao lâu | test tay: chuyển tab đi 30s rồi quay lại, nhân vật không được xuyên sàn |
 
 ## Security
 

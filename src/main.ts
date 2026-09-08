@@ -1,9 +1,90 @@
-// Entry point. Kept deliberately thin: it wires nothing but the boot sequence, so
-// that everything worth reading lives in a named module.
-import { BASE_H, BASE_W, computeScale } from './core/scale'
+/**
+ * Entry point. Deliberately thin — it computes the integer zoom, builds the game,
+ * and puts the two shared services in the registry. Everything worth reading is in
+ * a named module.
+ *
+ * `Phaser.Scale.NONE` is not laziness: FIT and RESIZE both produce fractional
+ * scaling, which is the one silent failure this project cares most about
+ * (invariants #1). The canvas is sized to an exact whole multiple of 320x180 and
+ * the leftover is letterbox, painted by the page.
+ */
 
-const app = document.getElementById('app')
-if (app === null) throw new Error('index.html is missing #app')
+import Phaser from 'phaser'
+import { computeScale } from './core/scale'
+import { Sfx } from './game/audio'
+import { SaveStore } from './game/saveStore'
+import { mountRotateGate } from './game/rotateGate'
+import { BootScene } from './game/scenes/BootScene'
+import { PreloadScene } from './game/scenes/PreloadScene'
+import { TitleScene } from './game/scenes/TitleScene'
+import { WorldMapScene } from './game/scenes/WorldMapScene'
+import { GameScene } from './game/scenes/GameScene'
+import { HudScene } from './game/scenes/HudScene'
+import { PauseScene } from './game/scenes/PauseScene'
+import { LevelCompleteScene } from './game/scenes/LevelCompleteScene'
+import { REGISTRY } from './game/scenes/keys'
 
-const { zoom, canvasW, canvasH } = computeScale(window.innerWidth, window.innerHeight)
-app.textContent = `${BASE_W}x${BASE_H} @${zoom}x -> ${canvasW}x${canvasH}`
+const parent = document.getElementById('app')
+if (parent === null) throw new Error('index.html is missing #app')
+
+const initial = computeScale(window.innerWidth, window.innerHeight)
+
+const store = new SaveStore()
+const sfx = new Sfx(store.muted)
+
+const game = new Phaser.Game({
+  type: Phaser.AUTO,
+  parent,
+  width: initial.canvasW,
+  height: initial.canvasH,
+  backgroundColor: '#131735',
+  pixelArt: true,
+  roundPixels: true,
+  scale: { mode: Phaser.Scale.NONE, autoCenter: Phaser.Scale.CENTER_BOTH },
+  physics: {
+    default: 'arcade',
+    arcade: {
+      // Zero on purpose: core/movement owns the player's gravity so it stays
+      // testable, and enemies set their own. See entities/Player.ts.
+      gravity: { x: 0, y: 0 },
+      debug: false,
+    },
+  },
+  scene: [BootScene, PreloadScene, TitleScene, WorldMapScene, GameScene, HudScene, PauseScene, LevelCompleteScene],
+})
+
+game.registry.set(REGISTRY.zoom, initial.zoom)
+game.registry.set(REGISTRY.sfx, sfx)
+game.registry.set(REGISTRY.save, store)
+
+/**
+ * Re-derive the whole size on resize. The zoom can change (rotating a tablet
+ * crosses a whole-number boundary), and when it does every UI scene has to be
+ * rebuilt because its type scale is baked in screen pixels.
+ */
+let lastZoom = initial.zoom
+window.addEventListener('resize', () => {
+  const next = computeScale(window.innerWidth, window.innerHeight)
+  game.scale.resize(next.canvasW, next.canvasH)
+  if (next.zoom === lastZoom) return
+
+  lastZoom = next.zoom
+  game.registry.set(REGISTRY.zoom, next.zoom)
+  for (const scene of game.scene.getScenes(true)) {
+    scene.scene.restart()
+  }
+})
+
+mountRotateGate(game)
+
+/**
+ * Dev-only handle on the running game.
+ *
+ * Stripped from production builds by the `import.meta.env.DEV` guard. It exists
+ * because driving a platformer from a script is otherwise blind: without a way to
+ * read where the player actually is, checking a flow like "reach the goal, see the
+ * card, watch the node open" turns into guessing at jump timings.
+ */
+if (import.meta.env.DEV) {
+  ;(window as unknown as { runup?: Phaser.Game }).runup = game
+}
