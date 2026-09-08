@@ -137,6 +137,15 @@ npm run release:notes v1.1.0    # prints the notes it would publish
 Add `[skip release]` to a commit subject to publish nothing, or `[release minor]` /
 `[release major]` to override the derived bump.
 
+Those markers are read from the **commit subject on `main`**, and that is easy to
+get wrong: putting one in a pull-request title does nothing. A squash of a
+single-commit PR reuses that commit's own message, so the marker never reaches
+`main` and the release goes out anyway. Put it in the commit.
+
+A `docs:` push cutting a patch release is expected, not a mistake — the marker is
+for the case where a docs commit rides along in the same push as a `feat:` that
+already earned the version.
+
 GitHub Pages has to be enabled once, by hand, in the repository settings —
 `GITHUB_TOKEN` can deploy to Pages but cannot create the site. See ADR-0008.
 
