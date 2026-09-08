@@ -33,7 +33,25 @@ tổng kết có `NEW BEST` → node 2 mở với đường mòn tự vẽ → t
 sống**; tường nứt có đúng ba kết cục — không nấm thì đặc, có nấm mà chậm thì
 `thud`, có nấm và đủ đà thì vỡ.
 
-Việc kế tiếp là mở PR. Nhánh `feat/core-game`, chưa có `origin` nào để push.
+**Đã lên GitHub.** Remote `origin` là `LeVanAnhDuc/-web-game-duc-stomp`; `main` và
+`feat/core-game` đã push; **PR #1** đang mở. CI trên PR: job boundary/type/unit và
+job build/budget/e2e đều xanh.
+
+Hai cấu hình repo đã bật bằng quyền chủ repo (repo cùng họ đều đã có, và CI cần
+chúng mới xanh): **Dependabot alerts / dependency graph** — thiếu nó thì job
+`Dependency review` đỏ với đúng thông báo *"Dependency review is not supported on
+this repository"* — và **GitHub Pages, source = GitHub Actions**, tức bước thủ công
+một-lần mà ADR-0008 nói workflow không tự làm được. Pages đã có site nhưng **chưa
+deploy lần nào**: `deploy.yml` chỉ chạy khi push vào `main`, nên nó sẽ chạy lúc
+merge PR.
+
+Việc kế tiếp sau merge: chạy
+`node .claude/skills/readme-game/scripts/capture-screenshots.mjs web-game-platformer`
+từ thư mục `web-game/` để lấy ảnh thật vào `docs/assets/screenshot.png` — đó là
+mục duy nhất còn thiếu trong hợp đồng 13 mục của README, và nó cần một URL Pages
+đang sống. `docs/assets/screenshot.setup.mjs` đã viết và **đã chạy thử trên bản
+production ở máy**: nó lái Title → WorldMap → Game bằng `<html data-scene>` chứ
+không hẹn giờ mù.
 
 ## Việc tiếp theo
 
