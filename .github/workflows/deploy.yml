@@ -29,6 +29,11 @@ jobs:
 
       - run: npm ci
 
+      # Lint chay o day chu khong chi trong ci.yml: `build` bat duoc loi kieu
+      # nhung khong bat vi pham lint, va mot push thang vao `main` khong di
+      # qua pull request.
+      - run: npm run lint:core
+
       # Test chạy lại ở đây thay vì tin vào workflow CI: hai workflow này độc lập,
       # và một deploy giả định rằng có một lần chạy xanh mà nó không nhìn thấy là
       # một deploy sớm muộn sẽ đẩy bản đỏ lên.
