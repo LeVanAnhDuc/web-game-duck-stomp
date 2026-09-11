@@ -2,7 +2,7 @@
 
 > **Trả lời:** Đang làm gì, tiếp theo làm gì, và đang nợ những gì?
 > **Trạng thái:** 🟢 đủ
-> **Cập nhật:** 2026-09-08 · commit —
+> **Cập nhật:** 2026-09-12 · commit —
 > **Cập nhật khi:** bắt đầu/kết thúc một việc · brainstorm ra việc mới · cố ý đi đường tắt
 
 <!-- CÁCH ĐIỀN
@@ -18,7 +18,35 @@ KHÔNG chứa: tính năng ngoài phạm vi (-> 01-product/overview.md §Non-Goa
 
 ## Đang làm
 
-**Không có việc nào đang dở.** Feature `core-game` đã xong: 19/19 FR ở `scope.md`
+**Skill `ux-persona-review` đã cài xong, chưa commit và chưa chạy lần nào.**
+Cây skill đủ ở `.claude/skills/ux-persona-review/` (+ hai agent ở
+`.claude/agents/`, đã mở `!/.claude/agents/` trong `.gitignore` vì chúng đang bị
+loại khỏi git). `red-routes.md` **đã được duyệt 12.09.2026**, nguyên bản, 5 route
+`live`; dàn 7 persona đã viết (`references/personas/`, có bảng phân công
+persona ↔ route trong `README.md` của thư mục đó). Một lần chạy = 5 route + 2
+phiên mù = **7 phiên**.
+
+Còn lại: **commit** (theo `.claude/CLAUDE.md` thì phải qua worktree + nhánh, không
+commit vào `main`), và **lần chạy thật đầu tiên** — chưa có phiên persona nào, nên
+`par_deaths`/`par_time_s` của mọi route vẫn ⚪ chưa đo.
+
+Hai bản sửa tay so với bản template, **mất là hỏng im lặng**: `tools:` trong
+`.claude/agents/ux-persona.md` phải liệt kê tường minh (`mcp__playwright__*` của
+template không khớp tiền tố `mcp__plugin_playwright_playwright__` ở máy này, và
+`install.sh --update` sẽ ghi đè lại bản sửa này), và mọi brief dispatch phải mang
+theo hai mục §Công thức của `canvas-driving.md` vì persona không có tool đọc file.
+
+Đo được trong lúc dò công cụ, đã ghi vào `canvas-driving.md`: `browser_press_key`
+**không** điều khiển được nhân vật (5 lần bấm `ArrowRight` → **0 px**, nhảy → **0
+px**) vì Phaser đọc `isDown` mỗi frame; giữ 300 ms → **33 px**, giữ nhảy 350 ms →
+lên **49 px**. Và số đo đầu tiên cho **NFR-PERF-07**: trên bản build ở localhost,
+tới Title chơi được **658 ms** không throttle, **4519 ms** ở Fast 3G (562.5 ms
+RTT, 1.6 Mbit/s), 339 KB qua 8 request. Đây là số **localhost** — chưa có RTT
+thật, chưa qua Pages, nên chưa đủ để đóng NFR-PERF-07.
+
+---
+
+Trước đó: feature `core-game` đã xong: 19/19 FR ở `scope.md`
 là `xong`, và mỗi cái đã được **nhìn thấy chạy trong browser thật**, không chỉ
 compile.
 
@@ -74,6 +102,8 @@ kế, marker chỉ dành cho commit docs đi cùng đợt push với một `feat
 
 | Việc | Liên quan | Ưu tiên | Vì sao ưu tiên đó |
 | --- | --- | --- | --- |
+| **Sửa: người chơi chỉ dùng cảm ứng không di chuyển được.** Cụm nút cảm ứng ẩn tới khi `showTouch` bật (`HudScene.ts:173`), mà thứ duy nhất bật nó là `pointerdown` trên chính mấy nút đang ẩn (`input.ts:60`, `HudScene.ts:132`) — vòng tròn tự khoá | FR-15 · NFR-A11Y-06 · US-03 | **cao** | Đo 12.09.2026 trong context sạch, không bấm phím nào: vào được màn 1 bằng con trỏ, nhấn-giữ 400 ms đúng ô nút nhảy và ô nút phải → `showTouch` vẫn `false`, nhân vật không nhích một pixel; lặp lại với `hasTouch: true` và tap cảm ứng thật cũng vậy. Đụng **nhóm người chơi chính** theo `overview.md` §3 |
+| Quyết chỗ lệch US-04 ↔ dữ liệu: US-04 tả "đã qua checkpoint ở màn 4" nhưng `level-4.json` không có object `checkpoint` nào (cả game chỉ màn 6 có một cái) | US-04 · FR-11 | trung bình | Sửa US-04 hay thêm checkpoint là hai quyết định sản phẩm khác nhau, không phải lỗi code |
 | Tải pack **Pixel Adventure** (+ pack 2) và thay art thật | ADR-0006 | cao | Game đang trông như bản thử. Đây là thứ duy nhất còn giữa "chạy được" và "chơi được cho người khác xem" |
 | Sample palette pack rồi rà lại 9 token, gỡ 🟡 của `MASTER.md` | ADR-0002 | cao | Nếu palette pack lệch hue với UI thì phải sửa **token**, không sửa sprite |
 | Xác nhận tile pack có đúng 16px; nếu khác thì nền 320×180 và mọi file Tiled phải tính lại | ADR-0006 | cao | Con số này lan ra khắp nơi. Sai thì sửa muộn rất đắt |

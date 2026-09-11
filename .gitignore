@@ -38,6 +38,9 @@ npm-debug.log*
 !/.claude/settings.local.json
 !/.claude/skills/
 !/.claude/scripts/
+# Hai agent cua ux-persona-review. Khong track thi ban clone moi khong co chung,
+# va lan chay dau tien that bai voi "agent type not found" — mot loi rat kho doan.
+!/.claude/agents/
 
 # Repo nay dung npm (package-lock.json). Mot yarn.lock lot vao la hai lockfile
 # trong mot repo: CI cai bang mot cai, nguoi dev cai bang cai kia.
