@@ -36,3 +36,4 @@ Chín bất biến mặc định của scaffold nói về server, ORM, migration
 | 9 | Đồng hồ **không reset khi hồi sinh** | Kỷ lục thời gian trở thành vô nghĩa, mà bảng tổng kết vẫn hiện số bình thường |
 | 10 | Mọi chuỗi hiển thị **chỉ ASCII** và đi qua bảng khoá | Chữ có dấu rơi sang font dự phòng — hỏng một phần, trông như lỗi ngẫu nhiên |
 | 11 | Nút cảm ứng hiện/ẩn theo **input thật đã nhận**, không theo user-agent | Laptop cảm ứng bị đoán sai; nút che màn chơi của người đang dùng bàn phím |
+| 12 | Cờ "đã thấy cảm ứng" phải bật được **từ ngoài** cụm nút cảm ứng (pointerdown ở phạm vi scene + `wasTouch`) | Nút ẩn cho tới khi có chạm, mà thứ duy nhất báo có chạm lại là chính mấy nút đang ẩn — vòng tròn tự khoá. Người chơi cảm ứng vào được màn chơi rồi **không nhích một pixel**. Không test nào đỏ, không log nào lỗi (ADR-0010) |

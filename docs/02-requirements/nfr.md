@@ -36,7 +36,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 | ~~NFR-PERF-04~~ | ~~Index cho cột filter/sort~~ **(bỏ)** — không có datastore | — |
 | NFR-PERF-05 | Giữ **60 fps** trong lúc chơi ở cả ba khổ đã kiểm; không có frame nào > 32ms | Phaser debug FPS + Performance panel, đi hết một màn |
 | NFR-PERF-06 | Vòng `update()` **không cấp phát object mới** mỗi frame — không tạo array/object/closure trong đó | review code + Memory panel: sawtooth GC không được xuất hiện khi đứng yên |
-| NFR-PERF-07 | Từ mở link tới màn Title chơi được: **≤ 5s** trên profile *Fast 3G* của DevTools. Đây là **ngân sách**, chưa phải số đo | Network throttling + Performance panel. ADR-0001 nói rõ bundle Phaser chưa được đo |
+| NFR-PERF-07 | Từ mở link tới màn Title chơi được: **≤ 5s** trên profile *Fast 3G*. **Đo 12.09.2026 trên bản đã phát hành (GitHub Pages): 4804 ms** — đạt, dư 196 ms. 342 KB qua 8 request. Cùng phép đo trên bản build ở localhost: 4519 ms | CDP `Network.emulateNetworkConditions` (562.5 ms RTT · 1.6 Mbit/s) rồi chờ `data-scene="Title"`. Cách làm ở `.claude/skills/ux-persona-review/references/canvas-driving.md` §Mạng chậm |
 | NFR-PERF-08 | Tổng asset tải lần đầu **≤ 3 MB** đã gzip. **Đo 08.09.2026: 332.81 kB gzip** (1,246 kB raw) — đạt, dư gần 9 lần | `npm run build` in ra số; Network panel để kiểm lại |
 | NFR-PERF-09 | Một bước physics **không bao giờ vượt 50ms**, bất kể frame trước cách bao lâu | test tay: chuyển tab đi 30s rồi quay lại, nhân vật không được xuyên sàn |
 
@@ -60,7 +60,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 | NFR-A11Y-03 | Vùng bấm ≥ 44×44px; nút hướng ≥ 72px, nút nhảy ≥ 88px | đo trên máy thật |
 | ~~NFR-A11Y-04~~ | ~~Mọi input có label liên kết~~ → **thay bằng**: mọi nút chỉ có icon phải có `aria-label`; game không có ô nhập text nào | grep `aria-label` trên mọi nút icon |
 | NFR-A11Y-05 | Tôn trọng `prefers-reduced-motion`: animation vẽ đường bản đồ bị tắt, vẽ ngay trạng thái cuối | thử tay với flag bật |
-| NFR-A11Y-06 | Game chơi được hết chỉ bằng bàn phím, và chơi được hết chỉ bằng cảm ứng | đi hết màn 1 bằng từng cách |
+| NFR-A11Y-06 | Game chơi được hết chỉ bằng bàn phím, và chơi được hết chỉ bằng cảm ứng. ⚠️ **Nửa cảm ứng từng SAI trên thực tế** tới 12.09.2026 (ADR-0010): nút cảm ứng không bao giờ hiện được. ⚠️ Và có một nhóm mà **cả hai** đường đều không tới được: ai không giữ được hai phím cùng lúc thì không qua hố đầu màn 1 — đo được, ADR-0012 | `tests/touch-and-locked.spec.ts` chạy trong context `hasTouch: true` (nửa cảm ứng, tự động) + đi hết màn 1 bằng bàn phím |
 
 ## i18n
 

@@ -18,7 +18,7 @@ export const STRINGS = {
   start: 'START',
   levelN: 'LEVEL {n}',
   best: 'BEST',
-  locked: 'Locked',
+  locked: 'LOCKED',
 
   // Play + HUD
   time: 'TIME',

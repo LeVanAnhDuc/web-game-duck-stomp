@@ -18,31 +18,42 @@ KHÔNG chứa: tính năng ngoài phạm vi (-> 01-product/overview.md §Non-Goa
 
 ## Đang làm
 
-**Skill `ux-persona-review` đã cài xong, chưa commit và chưa chạy lần nào.**
-Cây skill đủ ở `.claude/skills/ux-persona-review/` (+ hai agent ở
-`.claude/agents/`, đã mở `!/.claude/agents/` trong `.gitignore` vì chúng đang bị
-loại khỏi git). `red-routes.md` **đã được duyệt 12.09.2026**, nguyên bản, 5 route
-`live`; dàn 7 persona đã viết (`references/personas/`, có bảng phân công
-persona ↔ route trong `README.md` của thư mục đó). Một lần chạy = 5 route + 2
-phiên mù = **7 phiên**.
+**Đã chạy review persona lần đầu, và đã sửa hai lỗi chặn đường nó tìm ra.**
 
-Còn lại: **commit** (theo `.claude/CLAUDE.md` thì phải qua worktree + nhánh, không
-commit vào `main`), và **lần chạy thật đầu tiên** — chưa có phiên persona nào, nên
-`par_deaths`/`par_time_s` của mọi route vẫn ⚪ chưa đo.
+Lần chạy `2026-09-12-0104` chạy trên **bản đã phát hành** (GitHub Pages), không phải
+local: 8 phiên (5 Red Route + 2 phiên mù + 1 lần chạy lại RR-01), 46 ảnh có tiền tố
+phiên hợp lệ đã qua cổng kiểm. Báo cáo + log thô + ảnh của phát hiện Critical/High
+nằm ở `docs/specs/touch-controls-and-locked-start/`.
 
-Hai bản sửa tay so với bản template, **mất là hỏng im lặng**: `tools:` trong
-`.claude/agents/ux-persona.md` phải liệt kê tường minh (`mcp__playwright__*` của
-template không khớp tiền tố `mcp__plugin_playwright_playwright__` ở máy này, và
-`install.sh --update` sẽ ghi đè lại bản sửa này), và mọi brief dispatch phải mang
-theo hai mục §Công thức của `canvas-driving.md` vì persona không có tool đọc file.
+10 phát hiện: 1 Critical, 3 High, 3 Medium, 3 Low. **Hai cái đã sửa trong PR này**
+(ADR-0010, ADR-0011) và có test E2E khoá lại trong context `hasTouch: true`:
 
-Đo được trong lúc dò công cụ, đã ghi vào `canvas-driving.md`: `browser_press_key`
-**không** điều khiển được nhân vật (5 lần bấm `ArrowRight` → **0 px**, nhảy → **0
-px**) vì Phaser đọc `isDown` mỗi frame; giữ 300 ms → **33 px**, giữ nhảy 350 ms →
-lên **49 px**. Và số đo đầu tiên cho **NFR-PERF-07**: trên bản build ở localhost,
-tới Title chơi được **658 ms** không throttle, **4519 ms** ở Fast 3G (562.5 ms
-RTT, 1.6 Mbit/s), 339 KB qua 8 request. Đây là số **localhost** — chưa có RTT
-thật, chưa qua Pages, nên chưa đủ để đóng NFR-PERF-07.
+- **F-01 (Critical)** — người chơi chỉ có cảm ứng **không nhích được một pixel**. Cụm
+  nút cảm ứng ẩn tới khi có chạm, mà thứ duy nhất báo có chạm lại là chính mấy nút
+  đang ẩn. Đã thấy tận mắt sau khi sửa: giữ nút phải bằng ngón tay thật, nhân vật đi
+  từ x=72 tới x=168. Bất biến **#12** mới ghi lại cái bẫy này.
+- **F-03 (High)** — node bị khoá vẫn chọn được với nút START vàng rực, bấm thì im
+  lặng hoàn toàn. Giờ thẻ ghi `LOCKED`, ẩn số xu, START thành nút viền vô hiệu.
+
+**Số đo mới, đã vào `nfr.md`:** NFR-PERF-07 = **4804 ms** tới Title chơi được trên
+Fast 3G ở host thật (ngân sách ≤5000 ms — đạt, dư 196 ms).
+
+Kiểm chứng lúc dừng: `npm run verify` xanh — 96 unit test, **18** test Playwright
+(9 smoke cũ + 9 test mới trên ba khổ), `tsc` sạch, build 332.94 kB gzip.
+
+**Ba cái bị loại có chủ ý, không phải bỏ sót:** F-04 (giữ hai phím) là cái giá của
+ADR-0004, đã đo và ghi ở **ADR-0012** thay vì sửa · F-07 (màn chặn xoay) mức
+**không chắc** vì persona nhìn ảnh tĩnh nên không thấy được hoạt ảnh `nudge` mà
+ADR-0004 chốt — ghi rõ trong báo cáo · F-02/F-05/F-06/F-08/F-09/F-10 cần cổng duyệt
+thiết kế, nằm ở §Việc tiếp theo.
+
+---
+
+Trước đó: skill `ux-persona-review` đã cài (PR #9), 5 Red Route duyệt nguyên bản
+ngày 12.09.2026, dàn 7 persona cố định. Hai bản sửa tay **mất là hỏng im lặng**:
+`tools:` trong `.claude/agents/ux-persona.md` phải liệt kê tường minh và **không**
+được có `browser_press_key` (`install.sh --update` sẽ ghi đè lại), và mọi brief
+dispatch phải mang theo hai mục §Công thức của `canvas-driving.md`.
 
 ---
 
@@ -102,8 +113,15 @@ kế, marker chỉ dành cho commit docs đi cùng đợt push với một `feat
 
 | Việc | Liên quan | Ưu tiên | Vì sao ưu tiên đó |
 | --- | --- | --- | --- |
-| **Sửa: người chơi chỉ dùng cảm ứng không di chuyển được.** Cụm nút cảm ứng ẩn tới khi `showTouch` bật (`HudScene.ts:173`), mà thứ duy nhất bật nó là `pointerdown` trên chính mấy nút đang ẩn (`input.ts:60`, `HudScene.ts:132`) — vòng tròn tự khoá | FR-15 · NFR-A11Y-06 · US-03 | **cao** | Đo 12.09.2026 trong context sạch, không bấm phím nào: vào được màn 1 bằng con trỏ, nhấn-giữ 400 ms đúng ô nút nhảy và ô nút phải → `showTouch` vẫn `false`, nhân vật không nhích một pixel; lặp lại với `hasTouch: true` và tap cảm ứng thật cũng vậy. Đụng **nhóm người chơi chính** theo `overview.md` §3 |
+| **Chạy lại RR-05 cho có dữ liệu** — lần chạy 12.09 **không đo được** nó: persona chưa bao giờ tới được bức tường nứt | RR-05 · FR-05 · FR-07 | **cao** | Đây là chỗ **duy nhất** game dạy bằng bố cục thay vì bằng chữ. Câu hỏi "người chơi có tự hiểu đường chạy dài là lời mời không" vẫn chưa có câu trả lời, và một agent LLM lái game qua từng lời gọi tool không đủ tay để tới đó — cần tay người |
+| **Đạp đầu địch: 2/2 persona có vốn platformer dày đều mất 2 tim ở con walker đầu tiên** thay vì giết nó | FR-08 · US-04 | **cao** | Đủ 2 persona để nâng bậc theo `lib/frameworks.md`, nhưng cả hai đều là agent tự canh thời gian nhảy nên dẫn chứng yếu. Ứng cử viên số một cho lần chạy có tay người |
+| F-02 (High): ba ký hiệu điều khiển ở Title bị **2/7 persona đọc thành ba cái nút bấm được**; vào màn chơi thì không có nút | FR-01 · ADR-0005 | trung bình | Sau ADR-0010 thì lời hứa đó **được giữ** (chạm một cái là nút hiện). Còn lại là câu hỏi thiết kế: hàng ký hiệu đang vừa dạy phím vừa trông như nút — chọn một. Cần cổng duyệt mockup |
+| F-05 (Medium): khi input không ăn, **đồng hồ là thứ duy nhất động** — 3/7 persona đọc nó thành "game đang phản hồi tôi" và đi sâu thêm vào giả thuyết sai | FR-12 | trung bình | Đồng hồ đang kiêm hai việc: đo thành tích, và là dấu hiệu duy nhất cho thấy game còn sống |
+| F-07 (mức **không chắc**): màn chặn xoay bị đọc thành "trang bị lỗi" trong ~3 giây | FR-16 · ADR-0004 | trung bình | Hoạt ảnh `nudge` **có thật** trong `index.html`, nhưng persona nhìn ảnh tĩnh nên không thấy được. Phần còn đứng: hai khối chữ nhật viền trơn không nói được "đây là điện thoại". Cần một lần chạy có quay video |
+| F-06 (Medium): "mở khoá = tôi đã chơi rồi" — trạng thái node có 3 giá trị mà người chơi chỉ đọc ra 2 | FR-02 | thấp | 1 persona. Thẻ đáy bản đồ là chỗ tập trung lỗi đọc của lần chạy (F-03, F-06, F-08 đều ở đó) |
+| F-08 (Low): `BEST` bị negative persona hiểu là bảng xếp hạng · F-09 (Low): chữ số `5` ở cỡ label 12px đọc thành `S`, thấy được ở ảnh của 3 phiên · F-10 (Low): `CONTINUE` bị hiểu là "vào thẳng chỗ tôi dừng" | FR-02 · FR-12 · NFR-A11Y-01 | thấp | Cả ba đều 1 persona. F-09 đáng để ý nhất vì `label` 12px đã là sàn của hệ chữ |
 | Quyết chỗ lệch US-04 ↔ dữ liệu: US-04 tả "đã qua checkpoint ở màn 4" nhưng `level-4.json` không có object `checkpoint` nào (cả game chỉ màn 6 có một cái) | US-04 · FR-11 | trung bình | Sửa US-04 hay thêm checkpoint là hai quyết định sản phẩm khác nhau, không phải lỗi code |
+| Sửa `.githooks/pre-commit`: nó gọi `yarn lint:core` trong một repo **chỉ dùng npm** (commit 1eb16b8 đã xoá `yarn.lock` vì lý do đó) | — | thấp | Chạy được vì máy này có yarn, nhưng nó dạy sai người đọc kế tiếp. Đã sửa thành `npm run` trong PR này |
 | Tải pack **Pixel Adventure** (+ pack 2) và thay art thật | ADR-0006 | cao | Game đang trông như bản thử. Đây là thứ duy nhất còn giữa "chạy được" và "chơi được cho người khác xem" |
 | Sample palette pack rồi rà lại 9 token, gỡ 🟡 của `MASTER.md` | ADR-0002 | cao | Nếu palette pack lệch hue với UI thì phải sửa **token**, không sửa sprite |
 | Xác nhận tile pack có đúng 16px; nếu khác thì nền 320×180 và mọi file Tiled phải tính lại | ADR-0006 | cao | Con số này lan ra khắp nơi. Sai thì sửa muộn rất đắt |

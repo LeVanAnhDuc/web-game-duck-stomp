@@ -53,6 +53,23 @@ export class InputManager {
 
     // Three simultaneous contacts: two thumbs plus a stray palm touch.
     scene.input.addPointer(2)
+
+    /**
+     * Any real touch anywhere in the scene counts as "this player has touched".
+     *
+     * Before this listener the ONLY thing that set `sawTouch` was a pointerdown on
+     * one of the on-screen buttons — which are hidden until `sawTouch` is true.
+     * Phaser does not hit-test what it does not draw, so the flag could never flip:
+     * a touch-only player reached level 1 and then could not move a single pixel.
+     * Three independent sources found it (two persona sessions and a scripted
+     * `hasTouch` measurement) and no test went red, because nothing was throwing.
+     *
+     * `wasTouch` is input that ACTUALLY ARRIVED, not a guess about the device, so
+     * invariants #11 still holds and a mouse never summons the touch pad.
+     */
+    scene.input.on(Phaser.Input.Events.POINTER_DOWN, (pointer: Phaser.Input.Pointer) => {
+      if (pointer.wasTouch) this.sawTouch = true
+    })
   }
 
   /** Called by the HUD when an on-screen button goes down or up. */

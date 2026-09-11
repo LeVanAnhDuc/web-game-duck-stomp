@@ -35,6 +35,8 @@ export class WorldMapScene extends Phaser.Scene {
   private cardTitle!: Phaser.GameObjects.Text
   private cardBest!: Phaser.GameObjects.Text
   private cardCoins!: Phaser.GameObjects.Text
+  private cardCoinIcon!: Phaser.GameObjects.Image
+  private startButton!: Button
   private trail!: Phaser.GameObjects.Graphics
   private trailProgress = 1
   private animatingTo: LevelId | null = null
@@ -161,12 +163,12 @@ export class WorldMapScene extends Phaser.Scene {
 
     // A bare number next to BEST reads as a stray value; the icon is what says
     // "coins" without a second label.
-    const cardCoinIcon = this.add.image(
+    this.cardCoinIcon = this.add.image(
       cardX + Math.round(150 * s),
       cardY + Math.round(60 * s),
       UI_ICON.coin,
     )
-    cardCoinIcon.setOrigin(0, 0.5).setScale(Math.max(1, Math.round(2 * s)))
+    this.cardCoinIcon.setOrigin(0, 0.5).setScale(Math.max(1, Math.round(2 * s)))
 
     this.cardCoins = this.add
       .text(cardX + Math.round(174 * s), cardY + Math.round(60 * s), '', {
@@ -177,7 +179,7 @@ export class WorldMapScene extends Phaser.Scene {
       .setOrigin(0, 0.5)
 
     const startWidth = Math.round(150 * s)
-    new Button(
+    this.startButton = new Button(
       this,
       cardX + cardWidth - startWidth - Math.round(16 * s),
       cardY + (cardHeight - Math.round(48 * s)) / 2,
@@ -291,13 +293,29 @@ export class WorldMapScene extends Phaser.Scene {
     if (node !== undefined) this.ring.setPosition(node.x, node.y)
 
     this.cardTitle.setText(t('levelN', { n: id }))
-    this.cardBest.setText(
-      record?.bestTimeMs != null ? `${t('best')} ${formatTime(record.bestTimeMs)}` : `${t('best')} --`,
-    )
-    this.cardCoins.setText(`${record?.coins ?? 0}`)
+
+    /**
+     * A locked node stays SELECTABLE on purpose — peeking at what comes next is
+     * worth keeping. What must change is everything that claims the level is
+     * playable: `BEST --` and a coin count are meaningless for a level nobody can
+     * enter, and a gold START is a promise the map cannot keep.
+     */
+    const locked = !isUnlocked(store.save.levels, id)
+
+    if (locked) {
+      this.cardBest.setText(t('locked'))
+      this.cardCoinIcon.setVisible(false)
+      this.cardCoins.setText('')
+    } else {
+      this.cardBest.setText(
+        record?.bestTimeMs != null ? `${t('best')} ${formatTime(record.bestTimeMs)}` : `${t('best')} --`,
+      )
+      this.cardCoinIcon.setVisible(true)
+      this.cardCoins.setText(`${record?.coins ?? 0}`)
+    }
+    this.startButton.setEnabled(!locked)
 
     if (!silent) {
-      const locked = !isUnlocked(store.save.levels, id)
       this.ring.setStrokeStyle(metrics(this).s * 2, locked ? COLOR.locked : COLOR.gold)
     }
   }

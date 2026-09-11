@@ -21,9 +21,9 @@ if ! git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.mjs' | grep -
   exit 0
 fi
 
-if ! yarn --silent lint:core; then
+if ! npm run --silent lint:core; then
   printf '\n  Commit bi chan: core/ pha ranh gioi kien truc.\n' >&2
-  printf '  Xem lai: yarn lint:core\n\n' >&2
+  printf '  Xem lai: npm run lint:core\n\n' >&2
   exit 1
 fi
 
