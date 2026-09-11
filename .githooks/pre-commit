@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Git hook: gac commit bang hai thu repo nay that su co.
+#
+# Bat cung co che voi commit-msg:
+#
+#     git config core.hooksPath .githooks
+#
+# Vi sao khong phai ESLint (R-22): repo nay khong co ESLint, va cung khong can — thu
+# gac kien truc o day la `scripts/check-core-boundary.mjs`, no bat dung hai bat bien
+# ma khong type checker nao bat (core/ import Phaser, va doc dong ho tuong).
+#
+# `tsc --noEmit` khong loc theo file staged duoc: kiem mot phan cay kieu thi vo nghia.
+#
+# Day la phan hoi nhanh, KHONG phai rao chan: `core.hooksPath` khong theo duoc
+# `git clone`, va `--no-verify` bo qua duoc. Rao chan that la CI.
+set -uo pipefail
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if ! git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.mjs' | grep -q .; then
+  exit 0
+fi
+
+if ! yarn --silent lint:core; then
+  printf '\n  Commit bi chan: core/ pha ranh gioi kien truc.\n' >&2
+  printf '  Xem lai: yarn lint:core\n\n' >&2
+  exit 1
+fi
+
+if ! npx --no-install tsc --noEmit; then
+  printf '\n  Commit bi chan: tsc bao loi kieu.\n' >&2
+  printf '  Xem lai: npx tsc --noEmit\n' >&2
+  printf '  Bo qua co chu dich (hiem): git commit --no-verify\n\n' >&2
+  exit 1
+fi

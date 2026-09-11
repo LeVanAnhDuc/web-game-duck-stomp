@@ -16,6 +16,7 @@
 | [ADR-0006](0006-generated-placeholder-textures.md) | Sinh texture placeholder trong code, đằng sau một lớp đổi được sang atlas thật | 2026-09-08 | accepted |
 | [ADR-0007](0007-synthesised-webaudio-sfx.md) | SFX tổng hợp bằng WebAudio, không dùng file âm thanh | 2026-09-08 | accepted |
 | [ADR-0008](0008-pages-enabled-by-hand.md) | Bật GitHub Pages bằng tay một lần, không để workflow tự bật | 2026-09-08 | accepted |
+| [ADR-0009](0009-quy-uoc-view-dung-chung-khong-ap-cho-repo-nay.md) | Bộ quy ước view dùng chung phần lớn KHÔNG áp cho repo này | 2026-09-11 | accepted |
 <!-- END:auto -->
 
 Trạng thái: `accepted` · `superseded by ADR-00xx` · `deprecated`
