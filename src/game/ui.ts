@@ -170,6 +170,7 @@ export class Button extends Phaser.GameObjects.Container {
   private readonly s: number
   private focused = false
   private pressed = false
+  private enabled = true
 
   constructor(
     scene: Phaser.Scene,
@@ -231,6 +232,7 @@ export class Button extends Phaser.GameObjects.Container {
   }
 
   activate(): void {
+    if (!this.enabled) return
     this.onActivate()
   }
 
@@ -238,6 +240,35 @@ export class Button extends Phaser.GameObjects.Container {
     this.focused = on
     this.ring.setVisible(on)
     this.repaint(on)
+  }
+
+  /**
+   * A refused action has to LOOK refused before it is pressed.
+   *
+   * The world map used to leave START gold and shadowed while pointing at a locked
+   * level, and `enter()` answered the press with a silent early return — one
+   * persona pressed it, saw nothing at all, and quit the game there. "Instant" is
+   * not the same as "no visible change" (MASTER.md §Component).
+   *
+   * Colours are the design system's, not a taste call: `--locked` is defined for
+   * "node chưa mở, thứ bị vô hiệu" but only measures 3.58:1 on night, which is
+   * enough for a border and not for text — so the caption drops to `--ink-dim`
+   * (5.52:1 on panel, NFR-A11Y-01). Gold is never reused here: invariants #7 keeps
+   * it for coins, records, the primary CTA and focus.
+   */
+  setEnabled(on: boolean): void {
+    if (this.enabled === on) return
+    this.enabled = on
+    this.pressed = false
+
+    if (on) {
+      this.face.setInteractive({ useHandCursor: true })
+    } else {
+      this.face.disableInteractive()
+      this.ring.setVisible(false)
+      this.focused = false
+    }
+    this.repaint(false)
   }
 
   /**
@@ -249,9 +280,18 @@ export class Button extends Phaser.GameObjects.Container {
     const hot = hover || this.focused
     const sink = this.pressed ? 4 * this.s : 0
 
-    this.shadow.setVisible(this.style === 'gold' && !this.pressed)
+    this.shadow.setVisible(this.style === 'gold' && !this.pressed && this.enabled)
     this.face.setPosition(sink, sink)
     this.caption.setPosition(this.face.width / 2 + sink, this.face.height / 2 + sink)
+
+    if (!this.enabled) {
+      this.face.setFillStyle(COLOR.panel, 0)
+      this.face.setStrokeStyle(2 * this.s, COLOR.locked)
+      this.caption.setColor(CSS.inkDim)
+      return
+    }
+
+    this.caption.setColor(this.style === 'gold' ? CSS.onGold : CSS.ink)
 
     if (this.style === 'gold') {
       this.face.setFillStyle(hot ? COLOR.goldHover : COLOR.gold, 1)
