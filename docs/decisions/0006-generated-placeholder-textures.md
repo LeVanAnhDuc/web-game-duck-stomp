@@ -41,7 +41,7 @@ Kích thước tile chốt **16px**, nhân vật **16×16** — chọn để kh�
 
 **Được:**
 - Không có asset nhị phân nào trong repo giai đoạn này, và không có bước tải nào
-  trong `npm run dev`
+  trong `pnpm dev`
 - Bundle nhẹ, dễ đạt NFR-PERF-08
 - Ranh giới texture bị buộc phải rõ ngay từ đầu — thay pack là sửa một module
 
