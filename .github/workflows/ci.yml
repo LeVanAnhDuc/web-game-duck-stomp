@@ -23,32 +23,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Core purity boundary
         # Bất biến #2 và #5: src/core/ không được import phaser, không được đọc
         # đồng hồ, không được gọi Math.random. Không type checker nào bắt ba thứ
         # này, nên đây là chỗ DUY NHẤT chúng được kiểm tự động.
-        run: npm run lint:core
+        run: pnpm lint:core
 
       - name: Levels are reproducible from their ASCII maps
         # Nếu ai sửa tay file JSON của màn chơi thay vì sửa bản đồ ASCII rồi sinh
         # lại, git diff ở đây sẽ đỏ. Cùng lúc đó, hai assertion trong script
         # (vực không rộng hơn tầm nhảy, mọi thứ phải đứng trên đất) được chạy lại.
         run: |
-          npm run levels
+          pnpm levels
           git diff --exit-code -- assets/levels/ || {
-            echo "::error::assets/levels/ khác với output của scripts/make-level.mjs. Sửa bản đồ ASCII rồi chạy 'npm run levels', đừng sửa tay JSON."
+            echo "::error::assets/levels/ khác với output của scripts/make-level.mjs. Sửa bản đồ ASCII rồi chạy 'pnpm levels', đừng sửa tay JSON."
             exit 1
           }
 
       - name: Typecheck and unit tests
-        run: npm run build && npm test
+        run: pnpm build && pnpm test
 
   # NFR-SEC-05, đọc từ advisory database của GitHub. Chỉ chạy được trên pull
   # request: action này so cây phụ thuộc của base với head, nên nó cần hai đầu.
@@ -69,15 +71,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: pnpm build
 
       - name: Script payload budget
         # NFR-PERF-08, đo từ dist/ đã build chứ không đọc bảng Vite in ra: thứ
@@ -85,12 +89,12 @@ jobs:
         run: node scripts/check-bundle-size.mjs dist
 
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       # Ba khổ ngang: 667×375 · 1024×768 · 1440×900. Không có E2E cho physics —
       # xem lý do ở docs/specs/core-game/design.md §9.
       - name: End-to-end smoke tests
-        run: npm run test:e2e
+        run: pnpm test:e2e
 
       - if: failure()
         uses: actions/upload-artifact@v4

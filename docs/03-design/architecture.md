@@ -103,7 +103,7 @@ chiều ngược lại. Đó là lý do HUD là scene riêng chứ không phải
 | Physics | Arcade Physics (không Matter/Box2D) | ADR-0001 |
 | Soạn màn chơi | Tiled → JSON | ADR-0001 |
 | Ngôn ngữ | TypeScript | ADR-0001 |
-| Build | Vite · npm | ADR-0001 |
+| Build | Vite · pnpm | ADR-0001 |
 | Test | Vitest (`core/`) · Playwright (một smoke test) | ADR-0001 |
 | Art | Pixel Adventure — CC0 | ADR-0002 · ADR-0006 |
 | Design token | `docs/design-system/platformer/MASTER.md` | ADR-0002 |

@@ -14,7 +14,6 @@
 node_modules/
 dist/
 *.tsbuildinfo
-npm-debug.log*
 
 # Playwright
 /test-results/
@@ -42,6 +41,7 @@ npm-debug.log*
 # va lan chay dau tien that bai voi "agent type not found" — mot loi rat kho doan.
 !/.claude/agents/
 
-# Repo nay dung npm (package-lock.json). Mot yarn.lock lot vao la hai lockfile
-# trong mot repo: CI cai bang mot cai, nguoi dev cai bang cai kia.
+# Repo nay dung pnpm (pnpm-lock.yaml). Mot yarn.lock hay package-lock.json lot
+# vao la hai lockfile trong mot repo: CI cai bang mot cai, nguoi dev cai bang cai kia.
 yarn.lock
+package-lock.json
