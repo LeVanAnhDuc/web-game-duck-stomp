@@ -37,7 +37,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 | NFR-PERF-05 | Giữ **60 fps** trong lúc chơi ở cả ba khổ đã kiểm; không có frame nào > 32ms | Phaser debug FPS + Performance panel, đi hết một màn |
 | NFR-PERF-06 | Vòng `update()` **không cấp phát object mới** mỗi frame — không tạo array/object/closure trong đó | review code + Memory panel: sawtooth GC không được xuất hiện khi đứng yên |
 | NFR-PERF-07 | Từ mở link tới màn Title chơi được: **≤ 5s** trên profile *Fast 3G*. **Đo 12.09.2026 trên bản đã phát hành (GitHub Pages): 4804 ms** — đạt, dư 196 ms. 342 KB qua 8 request. Cùng phép đo trên bản build ở localhost: 4519 ms | CDP `Network.emulateNetworkConditions` (562.5 ms RTT · 1.6 Mbit/s) rồi chờ `data-scene="Title"`. Cách làm ở `.claude/skills/ux-persona-review/references/canvas-driving.md` §Mạng chậm |
-| NFR-PERF-08 | Tổng asset tải lần đầu **≤ 3 MB** đã gzip. **Đo 08.09.2026: 332.81 kB gzip** (1,246 kB raw) — đạt, dư gần 9 lần | `npm run build` in ra số; Network panel để kiểm lại |
+| NFR-PERF-08 | Tổng asset tải lần đầu **≤ 3 MB** đã gzip. **Đo 08.09.2026: 332.81 kB gzip** (1,246 kB raw) — đạt, dư gần 9 lần | `pnpm build` in ra số; Network panel để kiểm lại |
 | NFR-PERF-09 | Một bước physics **không bao giờ vượt 50ms**, bất kể frame trước cách bao lâu | test tay: chuyển tab đi 30s rồi quay lại, nhân vật không được xuyên sàn |
 
 ## Security
@@ -48,7 +48,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 | ~~NFR-SEC-02~~ | ~~Không log PII~~ **(bỏ)** — không thu PII nào. Xem NFR-DATA-01 | — |
 | ~~NFR-SEC-03~~ | ~~Rate limit đăng nhập~~ **(bỏ)** — không có tài khoản | — |
 | NFR-SEC-04 | Không có secret nào trong repo. Dự án này **không cần biến môi trường nào để chạy** | `grep` + `.env.example` giữ trạng thái rỗng có chủ ý |
-| NFR-SEC-05 | Dependency không có lỗ hổng mức high trở lên | `npm audit --audit-level=high` |
+| NFR-SEC-05 | Dependency không có lỗ hổng mức high trở lên | `pnpm audit --audit-level=high` |
 | ~~NFR-SEC-06~~ | ~~Lỗi trả client không chứa stack trace~~ **(bỏ)** — client-only, không có biên server/client | — |
 
 ## Accessibility

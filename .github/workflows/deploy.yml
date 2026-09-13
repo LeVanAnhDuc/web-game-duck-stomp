@@ -22,27 +22,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       # Lint chay o day chu khong chi trong ci.yml: `build` bat duoc loi kieu
       # nhung khong bat vi pham lint, va mot push thang vao `main` khong di
       # qua pull request.
-      - run: npm run lint:core
+      - run: pnpm lint:core
 
       # Test chạy lại ở đây thay vì tin vào workflow CI: hai workflow này độc lập,
       # và một deploy giả định rằng có một lần chạy xanh mà nó không nhìn thấy là
       # một deploy sớm muộn sẽ đẩy bản đỏ lên.
-      - run: npm test
+      - run: pnpm test
 
       # Không cần biến môi trường nào cho đường dẫn con. `vite.config.ts` đặt
       # `base: './'` nên mọi đường dẫn asset là tương đối và cùng một bản dist
       # chạy được ở gốc domain lẫn ở /<tên-repo>/ — kể cả khi tên repo đổi.
-      - run: npm run build
+      - run: pnpm build
 
       # KHÔNG dùng `enablement: true`: nó cần quyền admin repo mà GITHUB_TOKEN
       # không có, và sẽ đỏ với "Resource not accessible by integration". Bật Pages

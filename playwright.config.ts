@@ -41,14 +41,14 @@ export default defineConfig({
    * running" rather than only "a canvas exists".
    *
    * The cost is that the production bundle is not what runs here. It is covered
-   * separately: `npm run check` type-checks and builds it, and the build failing is
+   * separately: `pnpm check` type-checks and builds it, and the build failing is
    * a hard stop.
    */
   webServer: {
     // `--host 127.0.0.1` is load-bearing: left to itself Vite binds "localhost",
     // which can resolve to ::1, and Playwright's health check on 127.0.0.1 then
     // waits out its full timeout against a server that is already up.
-    command: 'npm run dev -- --port 4173 --strictPort --host 127.0.0.1',
+    command: 'pnpm dev --port 4173 --strictPort --host 127.0.0.1',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: process.env['CI'] === undefined,
     timeout: 120_000,

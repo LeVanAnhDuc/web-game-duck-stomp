@@ -10,8 +10,8 @@ description: Use when you want to know how a real stranger experiences Duck Stom
 - Thư mục: `D:/Learn/web-app-ecosystem/web-game/web-game-platformer`
 - Port: dev `:4173` · preview bản build `:4174` (cả hai bind `127.0.0.1`, `--strictPort`)
 - Bật app:
-  - phiên thường → `npm run dev -- --port 4173 --strictPort --host 127.0.0.1`
-  - phiên có throttle mạng → `npm run build && npm run preview -- --port 4174 --strictPort --host 127.0.0.1`
+  - phiên thường → `pnpm dev --port 4173 --strictPort --host 127.0.0.1`
+  - phiên có throttle mạng → `pnpm build && pnpm preview --port 4174 --strictPort --host 127.0.0.1`
     **Bắt buộc dùng bản build cho throttle.** Dev server trả module chưa bundle;
     Fast 3G trên dev server không tải xong trong 30s, và con số đó không nói gì về
     thứ người chơi thật tải. Đo 12.09.2026: bản build 8 request / 339 KB,

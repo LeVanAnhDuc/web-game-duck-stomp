@@ -21,15 +21,15 @@ if ! git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.mjs' | grep -
   exit 0
 fi
 
-if ! npm run --silent lint:core; then
+if ! pnpm --silent lint:core; then
   printf '\n  Commit bi chan: core/ pha ranh gioi kien truc.\n' >&2
-  printf '  Xem lai: npm run lint:core\n\n' >&2
+  printf '  Xem lai: pnpm lint:core\n\n' >&2
   exit 1
 fi
 
-if ! npx --no-install tsc --noEmit; then
+if ! pnpm exec tsc --noEmit; then
   printf '\n  Commit bi chan: tsc bao loi kieu.\n' >&2
-  printf '  Xem lai: npx tsc --noEmit\n' >&2
+  printf '  Xem lai: pnpm exec tsc --noEmit\n' >&2
   printf '  Bo qua co chu dich (hiem): git commit --no-verify\n\n' >&2
   exit 1
 fi

@@ -58,8 +58,8 @@ real device and guessing wrong hurts somebody either way.
 ## Commands
 
 ```bash
-npm ci
-npm run dev
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 No environment variables. None. See [`.env.example`](.env.example) — it is
@@ -67,14 +67,14 @@ deliberately empty, because there is no backend, no datastore and no API key.
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Vite dev server |
-| `npm run build` | Type-check, then build to `dist/` |
-| `npm test` | Unit tests for `src/core/` (Vitest) |
-| `npm run test:e2e` | Browser smoke test at three viewports (Playwright) |
-| `npm run lint:core` | Enforces the `src/core/` purity boundary |
-| `npm run check:bundle` | Fails if the gzipped script payload exceeds its budget |
-| `npm run levels` | Regenerates the level files from their ASCII maps |
-| `npm run verify` | Boundary, tests, build and end-to-end, in order |
+| `pnpm dev` | Vite dev server |
+| `pnpm build` | Type-check, then build to `dist/` |
+| `pnpm test` | Unit tests for `src/core/` (Vitest) |
+| `pnpm test:e2e` | Browser smoke test at three viewports (Playwright) |
+| `pnpm lint:core` | Enforces the `src/core/` purity boundary |
+| `pnpm check:bundle` | Fails if the gzipped script payload exceeds its budget |
+| `pnpm levels` | Regenerates the level files from their ASCII maps |
+| `pnpm verify` | Boundary, tests, build and end-to-end, in order |
 
 ## How it is put together
 
@@ -91,7 +91,7 @@ Phaser 3.90 with Arcade Physics, TypeScript, Vite, Vitest and Playwright.
 The boundary is the load-bearing part. Game feel is the thing most likely to
 regress and the most expensive thing to re-check by hand, so the movement state
 machine is a pure function of `(state, input, deltaTime, onGround)` and is covered
-by unit tests that run in milliseconds without a browser. `npm run lint:core`
+by unit tests that run in milliseconds without a browser. `pnpm lint:core`
 fails the build if anything in `src/core/` imports Phaser, reads the wall clock, or
 calls `Math.random`.
 
@@ -130,8 +130,8 @@ major, anything else is a patch. Both steps are scripts in the repo so they can 
 exercised on a laptop rather than only by pushing:
 
 ```bash
-npm run release:next            # prints the tag the next release would carry, and why
-npm run release:notes v1.1.0    # prints the notes it would publish
+pnpm release:next            # prints the tag the next release would carry, and why
+pnpm release:notes v1.1.0    # prints the notes it would publish
 ```
 
 Add `[skip release]` to a commit subject to publish nothing, or `[release minor]` /
