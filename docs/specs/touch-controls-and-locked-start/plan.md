@@ -44,15 +44,15 @@ Chi tiết và các phương án đã loại: **ADR-0011**.
 
 | Bước | Kết quả |
 | --- | --- |
-| `npm run lint:core` | ok — 15 file trong `src/core/` vẫn thuần |
-| `npx tsc --noEmit` | sạch |
-| `npm run test` | 96/96 unit test xanh |
+| `pnpm lint:core` | ok — 15 file trong `src/core/` vẫn thuần |
+| `pnpm exec tsc --noEmit` | sạch |
+| `pnpm test` | 96/96 unit test xanh |
 | 3 test mới | 3/3 xanh sau khi sửa |
-| `npm run verify` | **18/18** test Playwright xanh trên cả ba khổ, build 332.94 kB gzip |
+| `pnpm verify` | **18/18** test Playwright xanh trên cả ba khổ, build 332.94 kB gzip |
 
 ## 5. Nhìn tận mắt trong browser thật
 
-Không chỉ test — chạy `npm run dev` rồi lái bằng **cảm ứng thật** (context
+Không chỉ test — chạy `pnpm dev` rồi lái bằng **cảm ứng thật** (context
 `hasTouch: true`, cú giữ qua CDP), chụp lại ở `anh/sau-sua-*.png`:
 
 | Ảnh | Thấy gì |

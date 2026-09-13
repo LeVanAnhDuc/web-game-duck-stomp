@@ -35,13 +35,13 @@
 
 **Interfaces:**
 - Consumes: —
-- Produces: `npm run dev` · `npm run build` · `npm run test` · `npm run lint:core` (script grep chặn `core/` import phaser)
+- Produces: `pnpm dev` · `pnpm build` · `pnpm test` · `pnpm lint:core` (script grep chặn `core/` import phaser)
 
-- [ ] **Step 1: `npm init -y`, cài dependency**
+- [ ] **Step 1: `pnpm init`, cài dependency**
 
 ```bash
-npm install phaser@^3.90.0
-npm install -D vite typescript vitest @types/node
+pnpm add phaser@^3.90.0
+pnpm add -D vite typescript vitest @types/node
 ```
 
 - [ ] **Step 2: `tsconfig.json` strict**
@@ -69,9 +69,9 @@ describe('toolchain', () => {
 })
 ```
 
-- [ ] **Step 4: Chạy `npm test` — phải PASS**
+- [ ] **Step 4: Chạy `pnpm test` — phải PASS**
 
-Run: `npm test`. Expected: 1 passed.
+Run: `pnpm test`. Expected: 1 passed.
 
 - [ ] **Step 5: Script `lint:core` chặn vi phạm invariants #2**
 
@@ -80,7 +80,7 @@ Run: `npm test`. Expected: 1 passed.
 ```
 Script đọc mọi file trong `src/core/`, fail nếu tìm thấy `from 'phaser'`, `require('phaser')`, `../game/`, `Date.now(`, `performance.now(`.
 
-- [ ] **Step 6: Chạy `npm run lint:core` và `npm run build` — cả hai phải xanh**
+- [ ] **Step 6: Chạy `pnpm lint:core` và `pnpm build` — cả hai phải xanh**
 
 - [ ] **Step 7: Commit**
 
@@ -578,7 +578,7 @@ describe('saveSave', () => {
 Mỗi texture `16×16` (trừ `goal` `16×32`), vẽ bằng `Graphics` rồi `generateTexture(key, w, h)`. Palette placeholder: `#3B4581` thân, `#4E58A0` viền sáng, `#6E79C8` nhấn; player `#F2ECDF`, powered `#F2B33D` viền, địch `#7B84BA`, spiker `#F4666B` gai, xu `#F2B33D`.
 
 - [ ] **Step 1: Hiện thực** — không có unit test (cần Phaser runtime); được bọc bởi smoke test ở Task 18
-- [ ] **Step 2: `npm run build` xanh**
+- [ ] **Step 2: `pnpm build` xanh**
 - [ ] **Step 3: Commit** — `feat(game): generate placeholder textures at boot (ADR-0006)`
 
 ---
@@ -630,7 +630,7 @@ Bàn phím: `←/→/A/D` di chuyển, `Space/W/↑` nhảy. Cảm ứng: ba vù
 Phaser config: `pixelArt: true`, `roundPixels: true`, `scale.mode = Phaser.Scale.NONE`, kích thước từ `computeScale`, `backgroundColor: '#131735'`. Resize → tính lại zoom, `game.scale.resize`, canvas căn giữa.
 `rotateGate` là overlay DOM; bật khi `innerHeight > innerWidth`; **gọi `scene.pause()` trước khi hiện** (US-03).
 
-- [ ] **Step 1: Hiện thực** → **Step 2: `npm run dev`, mở browser, thấy nền và không có lỗi console** → **Step 3: Commit** — `feat(game): boot with integer scaling and rotate gate (FR-16, FR-18)`
+- [ ] **Step 1: Hiện thực** → **Step 2: `pnpm dev`, mở browser, thấy nền và không có lỗi console** → **Step 3: Commit** — `feat(game): boot with integer scaling and rotate gate (FR-16, FR-18)`
 
 ---
 
@@ -727,7 +727,7 @@ Cú bấm PLAY gọi `sfx.unlock()` (ADR-0007).
 
 Một test duy nhất: tải trang, bấm PLAY, vào màn 1, chụp ảnh ở `667×375` · `1024×768` · `1440×900`, khẳng định không có lỗi console. **Không** E2E physics.
 
-- [ ] **Step 1: Hiện thực** → **Step 2: `npx playwright test` xanh, xem 3 ảnh** → **Step 3: Commit** — `test: playwright smoke across three viewports`
+- [ ] **Step 1: Hiện thực** → **Step 2: `pnpm exec playwright test` xanh, xem 3 ảnh** → **Step 3: Commit** — `test: playwright smoke across three viewports`
 
 ---
 

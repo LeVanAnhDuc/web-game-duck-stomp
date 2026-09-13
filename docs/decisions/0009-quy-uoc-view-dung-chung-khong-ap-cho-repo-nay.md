@@ -38,6 +38,8 @@ hook.
 `tsc --noEmit`. Không chạy ESLint vì repo không có ESLint, và cũng không cần: thứ gác
 kiến trúc ở đây là `check-core-boundary.mjs`.
 
+> **Superseded 13.09.2026** — the workspace moved to pnpm 10; see the `build(deps)` commit that converted this repo.
+
 ## 3. Phương án đã loại
 
 | Phương án | Vì sao loại |

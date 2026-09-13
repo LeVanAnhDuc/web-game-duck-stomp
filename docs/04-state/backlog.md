@@ -38,7 +38,7 @@ nằm ở `docs/specs/touch-controls-and-locked-start/`.
 **Số đo mới, đã vào `nfr.md`:** NFR-PERF-07 = **4804 ms** tới Title chơi được trên
 Fast 3G ở host thật (ngân sách ≤5000 ms — đạt, dư 196 ms).
 
-Kiểm chứng lúc dừng: `npm run verify` xanh — 96 unit test, **18** test Playwright
+Kiểm chứng lúc dừng: `pnpm verify` xanh — 96 unit test, **18** test Playwright
 (9 smoke cũ + 9 test mới trên ba khổ), `tsc` sạch, build 332.94 kB gzip.
 
 **Ba cái bị loại có chủ ý, không phải bỏ sót:** F-04 (giữ hai phím) là cái giá của
@@ -61,7 +61,7 @@ Trước đó: feature `core-game` đã xong: 19/19 FR ở `scope.md`
 là `xong`, và mỗi cái đã được **nhìn thấy chạy trong browser thật**, không chỉ
 compile.
 
-Trạng thái kiểm chứng lúc dừng: `npm run verify` xanh — 96 unit test (`core/`),
+Trạng thái kiểm chứng lúc dừng: `pnpm verify` xanh — 96 unit test (`core/`),
 9 smoke test Playwright trên ba khổ, `tsc` sạch, build 332.81 kB gzip.
 
 Đã chơi và nhìn tận mắt: Title → bản đồ → màn 1 → chạy/nhảy/qua vực → ăn xu →
