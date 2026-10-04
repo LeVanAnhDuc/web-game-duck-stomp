@@ -9,11 +9,16 @@
  * the leftover is letterbox, painted by the page.
  */
 
+// First, on purpose: with Ducker ID sign-in on, this module catches the ?code= callback
+// and cleans the URL before anything else in the game can read it (ADR-0013). With
+// the feature off it does nothing.
+import './game/auth/session'
 import Phaser from 'phaser'
 import { computeScale } from './core/scale'
 import { Sfx } from './game/audio'
 import { SaveStore } from './game/saveStore'
 import { mountRotateGate } from './game/rotateGate'
+import { mountAccountOverlay } from './game/accountOverlay'
 import { BootScene } from './game/scenes/BootScene'
 import { PreloadScene } from './game/scenes/PreloadScene'
 import { TitleScene } from './game/scenes/TitleScene'
@@ -76,6 +81,7 @@ window.addEventListener('resize', () => {
 })
 
 mountRotateGate(game)
+mountAccountOverlay(game)
 
 /**
  * Publish which scene is on screen as `<html data-scene="...">`.

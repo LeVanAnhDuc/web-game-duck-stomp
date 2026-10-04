@@ -104,10 +104,134 @@
           transform: translateX(6px);
         }
       }
+
+      /* Ducker ID account control (ADR-0013). Plain DOM like the rotate gate, and for
+         the same reason: the user's own name can carry Vietnamese diacritics that the
+         pixel fonts cannot draw. Pixel look per MASTER.md: square corners, 2px border,
+         hard 4px offset shadow, instant state changes (no transitions). Gold is kept
+         for focus. accountOverlay.ts places it clear of the in-canvas sound button. */
+      #account-overlay {
+        position: fixed;
+        z-index: 5; /* under #rotate-gate (10) */
+        top: 8px;
+        right: 68px;
+        font-family: 'Pixelify Sans', ui-monospace, monospace;
+        touch-action: manipulation;
+      }
+      #account-overlay[hidden] {
+        display: none;
+      }
+      .acct-btn,
+      .acct-item {
+        box-sizing: border-box;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0 12px;
+        font: 400 14px/1 'Pixelify Sans', ui-monospace, monospace;
+        letter-spacing: 0.04em;
+        color: var(--ink);
+        background: var(--night);
+        border: 2px solid var(--ink-dim);
+        border-radius: 0;
+        box-shadow: 4px 4px 0 var(--night-deep);
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .acct-btn:hover:not(:disabled),
+      .acct-item:hover {
+        background: var(--panel);
+        border-color: var(--ink);
+      }
+      .acct-btn:active:not(:disabled),
+      .acct-item:active {
+        box-shadow: none;
+        transform: translate(4px, 4px);
+      }
+      .acct-btn:focus-visible,
+      .acct-item:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 2px;
+      }
+      .acct-btn:disabled {
+        color: var(--ink-dim);
+        border-color: #7b84ba;
+        box-shadow: none;
+        cursor: default;
+      }
+      .acct-btn--avatar {
+        padding: 0 8px;
+      }
+      .acct-avatar {
+        box-sizing: border-box;
+        width: 28px;
+        height: 28px;
+        border: 2px solid var(--ink-dim);
+        border-radius: 0;
+        background: var(--panel);
+        object-fit: cover;
+      }
+      .acct-avatar--initial {
+        display: grid;
+        place-items: center;
+        font: 400 14px/1 system-ui, sans-serif;
+        color: var(--ink);
+      }
+      .acct-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 240px;
+        max-width: calc(100vw - 16px);
+        padding: 12px;
+        background: var(--panel);
+        border: 2px solid var(--night-deep);
+        border-radius: 0;
+        box-shadow: 4px 4px 0 var(--night-deep);
+      }
+      .acct-menu[hidden] {
+        display: none;
+      }
+      /* The player's own text: system font, so Vietnamese diacritics render. */
+      .acct-name,
+      .acct-email {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        overflow-wrap: anywhere;
+        -webkit-user-select: text;
+        user-select: text;
+      }
+      .acct-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .acct-email {
+        font-size: 14px;
+        color: var(--ink-dim);
+      }
+      .acct-item {
+        justify-content: flex-start;
+        box-shadow: none;
+        background: transparent;
+      }
+      .acct-item:active {
+        transform: none;
+        background: var(--night);
+      }
     </style>
   </head>
   <body>
     <div id="app"></div>
+
+    <div id="account-overlay" hidden></div>
 
     <div id="rotate-gate" hidden>
       <div class="rotate-row">
