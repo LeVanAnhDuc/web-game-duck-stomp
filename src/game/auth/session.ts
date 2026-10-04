@@ -58,7 +58,10 @@ export function startSession(
 }
 
 export function signIn(): void {
-  if (DUCKER_CONFIG) void startLogin(DUCKER_CONFIG)
+  if (DUCKER_CONFIG) {
+    // startLogin resets its own in-flight guard on failure; sign-in is optional, so stay silent.
+    startLogin(DUCKER_CONFIG).catch(() => undefined)
+  }
 }
 
 /** Forget the profile in memory. The Ducker ID session stays — that is what SSO means. */

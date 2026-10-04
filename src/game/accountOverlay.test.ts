@@ -161,6 +161,14 @@ describe('accountOverlay', () => {
     expect(document.activeElement).toBe(document.getElementById('outside'))
   })
 
+  it('keeps the menu open on a focusout with no relatedTarget (Safari trigger click)', () => {
+    mount(signedIn)
+    const trigger = host.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')!
+    trigger.click()
+    host.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }))
+    expect(trigger.getAttribute('aria-expanded')).toBe('true')
+  })
+
   it('shows the email as the main line when there is no name, and no email line when none', () => {
     const first = mount({ status: 'signed-in', profile: { sub: 'u', email: 'a@b.c' } })
     expect(host.querySelector('.acct-name')!.textContent).toBe('a@b.c')

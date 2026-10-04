@@ -195,7 +195,10 @@ export function createAccountOverlay(
   // the menu without pulling focus back.
   const onFocusOut = (event: FocusEvent): void => {
     const to = event.relatedTarget as Node | null
-    if (open && !(to !== null && host.contains(to))) setOpen(false, false)
+    // Safari does not focus a clicked button, so focusout then has relatedTarget null and
+    // would close the menu just before the click re-opens it. Outside clicks are the
+    // pointerdown handler's job; only a real focus target outside the control closes here.
+    if (open && to !== null && !host.contains(to)) setOpen(false, false)
   }
   const stopKeys = (event: KeyboardEvent): void => event.stopPropagation()
 

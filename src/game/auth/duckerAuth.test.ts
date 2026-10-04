@@ -115,6 +115,17 @@ describe('startLogin', () => {
     expect(assign).toHaveBeenCalledTimes(1)
   })
 
+  it('can sign in again after a bfcache restore (persisted pageshow)', async () => {
+    await startLogin(config)
+    await startLogin(config)
+    expect(assign).toHaveBeenCalledTimes(1)
+    const event = new Event('pageshow')
+    Object.defineProperty(event, 'persisted', { value: true })
+    window.dispatchEvent(event)
+    await startLogin(config)
+    expect(assign).toHaveBeenCalledTimes(2)
+  })
+
   it('does not redirect when sessionStorage throws', async () => {
     vi.stubGlobal('sessionStorage', {
       getItem: () => null,

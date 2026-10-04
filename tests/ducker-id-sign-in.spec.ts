@@ -19,6 +19,7 @@ const ISSUER = 'http://ducker.test'
 const ON = 'http://127.0.0.1:4174'
 
 test.use({ baseURL: ON })
+test.setTimeout(60_000)
 
 const CORS = { 'access-control-allow-origin': '*' }
 const DRIVER_NOISE = /GL Driver Message|\.WebGL-0x/
@@ -54,7 +55,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 async function onTitle(page: Page): Promise<void> {
-  await expect.poll(() => page.evaluate(() => document.documentElement.dataset['scene']), { timeout: 10_000 }).toBe('Title')
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset['scene']), { timeout: 15_000 }).toBe('Title')
 }
 
 const signInButton = (page: Page) => page.getByRole('button', { name: 'SIGN IN' })

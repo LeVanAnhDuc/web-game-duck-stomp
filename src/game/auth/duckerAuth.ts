@@ -44,6 +44,14 @@ export function isSafeReturnTo(value: unknown): value is string {
 /** True while a sign-in is on its way to the redirect, so a double click starts one, not two. */
 let starting = false
 
+// Back from Ducker ID can restore this page from the bfcache with `starting` still true,
+// which would make SIGN IN do nothing. A persisted pageshow means "fresh start".
+if (typeof window !== 'undefined') {
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) starting = false
+  })
+}
+
 /** Build the authorize URL, then send the whole page to Ducker ID. */
 export async function startLogin(config: DuckerConfig): Promise<void> {
   if (starting) return
