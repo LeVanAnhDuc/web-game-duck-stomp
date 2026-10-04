@@ -56,6 +56,15 @@ describe('fetchProfile', () => {
     expect(init.signal).toBeInstanceOf(AbortSignal)
   })
 
+  it('accepts a minimal profile and rejects malformed ones', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ sub: 'u1' })))
+    await expect(fetchProfile(config, 'at')).resolves.toEqual({ sub: 'u1' })
+    for (const body of [null, { sub: '' }, { sub: 1 }, { sub: 'u', name: 5 }, { sub: 'u', email_verified: 'yes' }]) {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json(body)))
+      await expect(fetchProfile(config, 'at')).rejects.toThrow('userinfo_invalid')
+    }
+  })
+
   it('throws on a non-ok response', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({}, 401)))
     await expect(fetchProfile(config, 'at')).rejects.toThrow('userinfo_failed_401')

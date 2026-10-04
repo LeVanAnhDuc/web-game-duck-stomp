@@ -36,9 +36,9 @@ function clearPending(): void {
   }
 }
 
-/** A same-origin path only: starts with "/" but not "//" (which would be protocol-relative). */
+/** A same-origin path only: starts with "/" but not "//" (protocol-relative), and no backslash (`/\evil`). */
 export function isSafeReturnTo(value: unknown): value is string {
-  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')
+  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//') && !value.includes('\\')
 }
 
 /** True while a sign-in is on its way to the redirect, so a double click starts one, not two. */

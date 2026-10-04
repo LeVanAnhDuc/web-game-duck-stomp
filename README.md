@@ -6,7 +6,7 @@
 
 Six hand-designed levels on a world map, played with **exactly two controls** — so a
 phone and a keyboard play the same game rather than one being a port of the other.
-Runs entirely in the browser: no install, no account, no backend. Progress lives in
+Runs entirely in the browser: no install, no game accounts, no backend. Progress lives in
 `localStorage` on the player's own machine. Landscape only.
 
 **Play**: https://levananhduc.github.io/web-game-duck-stomp/

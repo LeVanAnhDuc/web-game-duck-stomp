@@ -51,7 +51,7 @@ describe('consumeCallback', () => {
     expect(consumeCallback()).toEqual({ error: 'access_denied', returnTo: '/?level=3' })
   })
 
-  it.each(['//evil.test/x', 'https://evil.test/', 'javascript:1', 5])('drops an unsafe returnTo %s', (returnTo) => {
+  it.each(['//evil.test/x', '/\\evil', 'https://evil.test/', 'javascript:1', 5])('drops an unsafe returnTo %s', (returnTo) => {
     sessionStorage.setItem('ducker.pkce', JSON.stringify({ state: 's1', verifier: 'v1', returnTo }))
     window.history.replaceState(null, '', '/?code=c1&state=s1')
     expect(consumeCallback()).toEqual({ code: 'c1', verifier: 'v1' })
