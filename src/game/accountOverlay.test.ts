@@ -131,6 +131,7 @@ describe('accountOverlay', () => {
     signOut.click()
     expect(store.signOut).toHaveBeenCalledOnce()
     expect(buttons()[0]!.textContent).toContain('SIGN IN')
+    expect(document.activeElement).toBe(buttons()[0])
   })
 
   it('does not let keys leak to the game while focus is in the overlay', () => {

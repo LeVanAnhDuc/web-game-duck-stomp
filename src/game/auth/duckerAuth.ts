@@ -36,6 +36,11 @@ function clearPending(): void {
   }
 }
 
+/** A same-origin path only: starts with "/" but not "//" (which would be protocol-relative). */
+export function isSafeReturnTo(value: unknown): value is string {
+  return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')
+}
+
 /** Build the authorize URL, then send the whole page to Ducker ID. */
 export async function startLogin(config: DuckerConfig): Promise<void> {
   const verifier = randomUrlSafeToken()
@@ -82,9 +87,13 @@ export function consumeCallback(): CallbackResult | null {
     window.location.pathname + (query ? `?${query}` : '') + window.location.hash,
   )
 
-  if (error) return { error }
+  // redirect_uri is the bare app root, so a denied sign-in would drop the game's params
+  // unless we restore them here too. Not on state_mismatch: that entry is not ours.
+  if (error) return isSafeReturnTo(pending?.returnTo) ? { error, returnTo: pending.returnTo } : { error }
   if (!pending || pending.state !== state || !code) return { error: 'state_mismatch' }
-  return { code, verifier: pending.verifier, returnTo: pending.returnTo }
+  return isSafeReturnTo(pending.returnTo)
+    ? { code, verifier: pending.verifier, returnTo: pending.returnTo }
+    : { code, verifier: pending.verifier }
 }
 
 let captured: CallbackResult | null = null
@@ -95,7 +104,13 @@ export function captureCallback(): void {
   if (didCapture) return
   didCapture = true
   captured = consumeCallback()
-  if (captured?.returnTo) window.history.replaceState(window.history.state, '', captured.returnTo)
+  if (captured?.returnTo) {
+    try {
+      window.history.replaceState(window.history.state, '', captured.returnTo)
+    } catch {
+      // a browser that refuses the URL keeps the cleaned one
+    }
+  }
 }
 
 export function capturedCallback(): CallbackResult | null {

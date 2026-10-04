@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { consumeCallback, startLogin } from './duckerAuth'
+import { captureCallback, consumeCallback, resetCaptureForTests, startLogin } from './duckerAuth'
 
 const config = {
   issuer: 'http://localhost:3000',
@@ -43,6 +43,30 @@ describe('consumeCallback', () => {
     sessionStorage.setItem('ducker.pkce', '{nope')
     window.history.replaceState(null, '', '/?code=c1&state=s1')
     expect(consumeCallback()).toEqual({ error: 'state_mismatch' })
+  })
+
+  it('IdP error returns returnTo so the game params come back', () => {
+    sessionStorage.setItem('ducker.pkce', JSON.stringify({ state: 's1', verifier: 'v1', returnTo: '/?level=3' }))
+    window.history.replaceState(null, '', '/?error=access_denied&state=s1')
+    expect(consumeCallback()).toEqual({ error: 'access_denied', returnTo: '/?level=3' })
+  })
+
+  it.each(['//evil.test/x', 'https://evil.test/', 'javascript:1', 5])('drops an unsafe returnTo %s', (returnTo) => {
+    sessionStorage.setItem('ducker.pkce', JSON.stringify({ state: 's1', verifier: 'v1', returnTo }))
+    window.history.replaceState(null, '', '/?code=c1&state=s1')
+    expect(consumeCallback()).toEqual({ code: 'c1', verifier: 'v1' })
+  })
+
+  it('captureCallback restores returnTo once; a second call is a no-op', () => {
+    resetCaptureForTests()
+    sessionStorage.setItem('ducker.pkce', JSON.stringify({ state: 's1', verifier: 'v1', returnTo: '/?level=3' }))
+    window.history.replaceState(null, '', '/?code=c1&state=s1')
+    captureCallback()
+    expect(window.location.search).toBe('?level=3')
+    window.history.replaceState(null, '', '/?code=c2&state=s2')
+    captureCallback()
+    expect(window.location.search).toBe('?code=c2&state=s2')
+    resetCaptureForTests()
   })
 
   it('passes the IdP error through and cleans the URL', () => {
