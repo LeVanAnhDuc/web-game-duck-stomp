@@ -34,6 +34,8 @@ CC0 sprite pack is wired in — see ADR-0006. The local folder is still
 - Sound effects synthesised in the browser — no audio files to download.
 - Renders at 320×180 scaled by a whole number, so the pixels stay sharp at any
   window size.
+- Optional sign-in with Ducker ID — identity only, nothing is saved or synced
+  (behind a feature flag, off in the deployed build).
 
 ## Controls
 
@@ -62,8 +64,14 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-No environment variables. None. See [`.env.example`](.env.example) — it is
-deliberately empty, because there is no backend, no datastore and no API key.
+Only `VITE_BASE_PATH` is needed, and there is no backend, datastore or API key. The
+optional Ducker ID sign-in is off unless `VITE_FEATURE_DUCKER_SIGN_IN=true` **and**
+`VITE_DUCKER_ISSUER`, `VITE_DUCKER_CLIENT_ID`, `VITE_DUCKER_SCOPE` and
+`VITE_DUCKER_PROFILE_PATH` are all set; none of them has a default, and the deploy
+workflow deliberately passes none of them. To try it locally, `cp .env.example .env`,
+fill in the client id registered in Ducker ID, add the dev origin
+(`http://localhost:5173`) to Ducker ID's `CORS_ORIGINS`, and run `pnpm dev`. See
+[`.env.example`](.env.example).
 
 | Command | What it does |
 | --- | --- |
