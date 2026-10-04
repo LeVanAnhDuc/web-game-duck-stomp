@@ -56,7 +56,8 @@ GitHub Pages không có nút; chỉ chạy được local.
 
 **Ngoại lệ có giới hạn cho NFR (đã ghi vào `nfr.md`):** *`sessionStorage` khoá
 `ducker.pkce` là storage duy nhất, xoá khi người chơi quay về; mạng chỉ tới issuer đã
-cấu hình, chỉ sau khi người chơi bấm đăng nhập; cờ tắt thì không có gì.* Áp cho
+cấu hình và tới URL ảnh đại diện mà issuer trả về (có thể ở host khác, không giới hạn),
+chỉ sau khi người chơi bấm đăng nhập và đăng nhập xong; cờ tắt thì không có gì.* Áp cho
 NFR-DATA-01 (PII chỉ trong bộ nhớ tab), NFR-SEC-04 (5 biến `VITE_*` công khai, tuỳ
 chọn) và NFR-I18N-04 / ADR-0005 (nhãn ASCII, tên người chơi `system-ui`).
 

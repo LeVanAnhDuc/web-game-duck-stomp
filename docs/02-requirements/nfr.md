@@ -85,7 +85,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 
 | ID | Ngưỡng | Cách kiểm |
 | --- | --- | --- |
-| NFR-DATA-01 | **Dự án không thu thập và không lưu bất kỳ PII nào.** Không analytics, không cookie, không định danh máy. **Ngoại lệ có giới hạn (ADR-0013):** khi người chơi tự bấm đăng nhập Ducker ID, tên/email/ảnh của họ được đọc từ Ducker ID, **chỉ giữ trong bộ nhớ của tab** và mất khi tải lại. Storage duy nhất mà tính năng chạm vào là `sessionStorage` khoá `ducker.pkce`, xoá ngay khi người chơi quay về. Mạng chỉ tới issuer đã cấu hình, chỉ sau khi người chơi bấm đăng nhập; cờ tắt thì không có gì | bảng dưới + review mọi lệnh ghi storage + e2e `ducker-id-sign-in-off.spec.ts` |
+| NFR-DATA-01 | **Dự án không thu thập và không lưu bất kỳ PII nào.** Không analytics, không cookie, không định danh máy. **Ngoại lệ có giới hạn (ADR-0013):** khi người chơi tự bấm đăng nhập Ducker ID, tên/email/ảnh của họ được đọc từ Ducker ID, **chỉ giữ trong bộ nhớ của tab** và mất khi tải lại. Storage duy nhất mà tính năng chạm vào là `sessionStorage` khoá `ducker.pkce`, xoá ngay khi người chơi quay về. Mạng chỉ tới issuer đã cấu hình, và tới URL ảnh đại diện mà issuer trả về (có thể ở host khác; không giới hạn ảnh), chỉ sau khi người chơi bấm đăng nhập và đăng nhập xong; cờ tắt thì không có gì | bảng dưới + review mọi lệnh ghi storage + e2e `ducker-id-sign-in-off.spec.ts` |
 | ~~NFR-DATA-02~~ | ~~Xoá tài khoản thì xoá PII~~ **(bỏ)** — không có tài khoản. Người chơi xoá dữ liệu bằng cách xoá site data của trình duyệt | — |
 | NFR-DATA-03 | Có đường migrate save khi cấu trúc đổi, và đường đó **đã chạy thật một lần** trong test | unit test migrate từ mọi version cũ lên version hiện tại |
 

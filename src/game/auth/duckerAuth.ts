@@ -78,15 +78,25 @@ async function begin(config: DuckerConfig): Promise<void> {
     starting = false // nothing was redirected, so a later click may try again
     return // no place to keep the verifier means the callback would dead-end
   }
-  const url = new URL('/oauth/authorize', config.issuer)
-  url.searchParams.set('response_type', 'code')
-  url.searchParams.set('client_id', config.clientId)
-  url.searchParams.set('redirect_uri', redirectUri())
-  url.searchParams.set('scope', config.scope)
-  url.searchParams.set('state', state)
-  url.searchParams.set('code_challenge', await challengeOf(verifier))
-  url.searchParams.set('code_challenge_method', 'S256')
-  window.location.assign(url.toString())
+  try {
+    const url = new URL('/oauth/authorize', config.issuer)
+    url.searchParams.set('response_type', 'code')
+    url.searchParams.set('client_id', config.clientId)
+    url.searchParams.set('redirect_uri', redirectUri())
+    url.searchParams.set('scope', config.scope)
+    url.searchParams.set('state', state)
+    url.searchParams.set('code_challenge', await challengeOf(verifier))
+    url.searchParams.set('code_challenge_method', 'S256')
+    window.location.assign(url.toString())
+  } catch (error) {
+    // Nothing was redirected, so the entry we just wrote would be an orphan.
+    try {
+      sessionStorage.removeItem(DUCKER_PKCE_KEY)
+    } catch {
+      // blocked storage: nothing more to clean
+    }
+    throw error
+  }
 }
 
 /**

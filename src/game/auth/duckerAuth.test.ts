@@ -126,6 +126,16 @@ describe('startLogin', () => {
     expect(assign).toHaveBeenCalledTimes(2)
   })
 
+  it('removes the pending entry and allows a retry when the start fails', async () => {
+    const digest = vi.spyOn(crypto.subtle, 'digest').mockRejectedValueOnce(new Error('no crypto'))
+    await expect(startLogin(config)).rejects.toThrow('no crypto')
+    expect(sessionStorage.getItem('ducker.pkce')).toBeNull()
+    expect(assign).not.toHaveBeenCalled()
+    digest.mockRestore()
+    await startLogin(config)
+    expect(assign).toHaveBeenCalledTimes(1)
+  })
+
   it('does not redirect when sessionStorage throws', async () => {
     vi.stubGlobal('sessionStorage', {
       getItem: () => null,
