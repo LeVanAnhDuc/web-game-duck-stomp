@@ -143,6 +143,21 @@ describe('accountOverlay', () => {
     expect(document.activeElement).toBe(out)
   })
 
+  it('sends no referrer for the picture and falls back to the initial if it fails', () => {
+    mount({ status: 'signed-in', profile: { sub: 'u', name: 'Anh', picture: 'https://example.test/a.png' } })
+    const img = host.querySelector('img')!
+    expect(img.referrerPolicy).toBe('no-referrer')
+    img.dispatchEvent(new Event('error'))
+    expect(host.querySelector('img')).toBeNull()
+    expect(host.querySelector('[aria-haspopup="menu"]')!.textContent).toContain('A')
+  })
+
+  it('marks the identity block role=none so the menu lists only its two items', () => {
+    mount(signedIn)
+    expect(host.querySelector('.acct-identity')!.getAttribute('role')).toBe('none')
+    expect(host.querySelectorAll('[role="menuitem"]').length).toBe(2)
+  })
+
   it('keeps menu keys away from a window listener (the game) only while the menu is open', () => {
     mount(signedIn)
     const seen: string[] = []

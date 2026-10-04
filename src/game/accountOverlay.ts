@@ -76,17 +76,39 @@ function el<K extends keyof HTMLElementTagNameMap>(
 }
 
 function avatar(profile: DuckerProfile): HTMLElement {
-  if (profile.picture) {
-    const img = el('img', 'acct-avatar')
-    img.src = profile.picture
-    img.alt = ''
-    img.width = 28
-    img.height = 28
-    return img
-  }
   const badge = el('span', 'acct-avatar acct-avatar--initial', initialOf(profile))
   badge.setAttribute('aria-hidden', 'true')
-  return badge
+  if (!profile.picture) return badge
+
+  const img = el('img', 'acct-avatar')
+  // The picture host is whatever the issuer returned: send no referrer, and fall back to
+  // the initial if it fails to load.
+  img.referrerPolicy = 'no-referrer'
+  img.src = profile.picture
+  img.alt = ''
+  img.width = 28
+  img.height = 28
+  img.addEventListener('error', () => img.replaceWith(badge), { once: true })
+  return img
+}
+
+/**
+ * The menu hangs below its trigger by default. On a short landscape viewport (568x320)
+ * that runs off the bottom, so slide it up just enough to fit, never above the top edge.
+ * It stays position: absolute inside the fixed host, so no surrounding layout moves.
+ */
+function keepMenuOnScreen(menu: HTMLElement): void {
+  menu.style.top = ''
+  const host = menu.parentElement
+  if (host === null) return
+  const hostTop = host.getBoundingClientRect().top
+  const rect = menu.getBoundingClientRect()
+  const margin = 8
+  const overflow = rect.bottom - (window.innerHeight - margin)
+  if (overflow <= 0) return
+  const shifted = rect.top - overflow
+  const top = Math.max(shifted, margin) - hostTop
+  menu.style.top = `${Math.round(top)}px`
 }
 
 export function createAccountOverlay(
@@ -104,6 +126,7 @@ export function createAccountOverlay(
     if (trigger === null || menu === null) return
     trigger.setAttribute('aria-expanded', String(next))
     menu.hidden = !next
+    if (next) keepMenuOnScreen(menu)
     if (next) menu.querySelector<HTMLElement>('a,button')?.focus()
     else if (refocus) trigger.focus()
   }
@@ -145,8 +168,12 @@ export function createAccountOverlay(
     // The user's own text. system-ui on purpose: the pixel fonts lack Vietnamese glyphs.
     // No name: the email is the main line. No email: no second line.
     const main = profile.name || profile.email
-    if (main) menu.append(el('p', 'acct-name', main))
-    if (profile.name && profile.email) menu.append(el('p', 'acct-email', profile.email))
+    // The identity block is not an item: role="none" keeps it out of the menu's item list.
+    const identity = el('div', 'acct-identity')
+    identity.setAttribute('role', 'none')
+    if (main) identity.append(el('p', 'acct-name', main))
+    if (profile.name && profile.email) identity.append(el('p', 'acct-email', profile.email))
+    if (identity.children.length > 0) menu.append(identity)
 
     const link = el('a', 'acct-item', t('duckerProfile'))
     link.setAttribute('role', 'menuitem')

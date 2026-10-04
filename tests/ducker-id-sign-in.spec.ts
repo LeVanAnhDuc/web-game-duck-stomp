@@ -155,6 +155,26 @@ test('the signed-out control is at least 44px and clear of the sound button', as
   expect(box.y).toBeLessThan(sound.bottom)
 })
 
+for (const [width, height] of [[667, 375], [568, 320]] as const) {
+  test(`the open menu stays inside a ${width}x${height} viewport and moves no layout`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
+    await page.goto('/')
+    await onTitle(page)
+    await signInButton(page).click()
+    await expect(accountButton(page)).toBeVisible()
+    const host = page.locator('#account-overlay')
+    const before = (await host.boundingBox())!
+    await accountButton(page).click()
+    const menu = (await page.getByRole('menu').boundingBox())!
+    expect(menu.x).toBeGreaterThanOrEqual(0)
+    expect(menu.y).toBeGreaterThanOrEqual(0)
+    expect(menu.x + menu.width).toBeLessThanOrEqual(width)
+    expect(menu.y + menu.height).toBeLessThanOrEqual(height)
+    expect(await page.getByRole('menu').evaluate((el) => getComputedStyle(el).position)).toBe('absolute')
+    expect(await host.boundingBox()).toEqual(before)
+  })
+}
+
 test('the overlay is gone once the game starts', async ({ page }) => {
   await page.goto('/')
   await onTitle(page)
