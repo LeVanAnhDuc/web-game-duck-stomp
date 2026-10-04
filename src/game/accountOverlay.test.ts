@@ -123,6 +123,54 @@ describe('accountOverlay', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
   })
 
+  it('moves focus with the arrow keys, wrapping, and Home / End', () => {
+    mount(signedIn)
+    host.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')!.click()
+    const [link, out] = [...host.querySelectorAll<HTMLElement>('[role="menuitem"]')]
+    const press = (key: string): void => {
+      document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
+    }
+    expect(document.activeElement).toBe(link)
+    press('ArrowDown')
+    expect(document.activeElement).toBe(out)
+    press('ArrowDown')
+    expect(document.activeElement).toBe(link)
+    press('ArrowUp')
+    expect(document.activeElement).toBe(out)
+    press('Home')
+    expect(document.activeElement).toBe(link)
+    press('End')
+    expect(document.activeElement).toBe(out)
+  })
+
+  it('closes on Tab without pulling focus back', () => {
+    mount(signedIn)
+    const trigger = host.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')!
+    trigger.click()
+    document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.activeElement).not.toBe(trigger)
+  })
+
+  it('closes when focus leaves to somewhere outside', () => {
+    mount(signedIn)
+    const trigger = host.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')!
+    trigger.click()
+    document.getElementById('outside')!.focus()
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    expect(document.activeElement).toBe(document.getElementById('outside'))
+  })
+
+  it('shows the email as the main line when there is no name, and no email line when none', () => {
+    const first = mount({ status: 'signed-in', profile: { sub: 'u', email: 'a@b.c' } })
+    expect(host.querySelector('.acct-name')!.textContent).toBe('a@b.c')
+    expect(host.querySelector('.acct-email')).toBeNull()
+    first.overlay.destroy()
+    mount({ status: 'signed-in', profile: { sub: 'u', name: 'Only Name' } })
+    expect(host.querySelector('.acct-name')!.textContent).toBe('Only Name')
+    expect(host.querySelector('.acct-email')).toBeNull()
+  })
+
   it('signs out from the menu and shows SIGN IN again', () => {
     const { store } = mount(signedIn)
     host.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')!.click()

@@ -41,8 +41,22 @@ export function isSafeReturnTo(value: unknown): value is string {
   return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')
 }
 
+/** True while a sign-in is on its way to the redirect, so a double click starts one, not two. */
+let starting = false
+
 /** Build the authorize URL, then send the whole page to Ducker ID. */
 export async function startLogin(config: DuckerConfig): Promise<void> {
+  if (starting) return
+  starting = true
+  try {
+    await begin(config)
+  } catch (error) {
+    starting = false
+    throw error
+  }
+}
+
+async function begin(config: DuckerConfig): Promise<void> {
   const verifier = randomUrlSafeToken()
   const state = randomUrlSafeToken()
   const pending: PendingAuth = {
@@ -53,6 +67,7 @@ export async function startLogin(config: DuckerConfig): Promise<void> {
   try {
     sessionStorage.setItem(DUCKER_PKCE_KEY, JSON.stringify(pending))
   } catch {
+    starting = false // nothing was redirected, so a later click may try again
     return // no place to keep the verifier means the callback would dead-end
   }
   const url = new URL('/oauth/authorize', config.issuer)
@@ -119,6 +134,7 @@ export function capturedCallback(): CallbackResult | null {
 
 /** Test seam. */
 export function resetCaptureForTests(): void {
+  starting = false
   captured = null
   didCapture = false
 }

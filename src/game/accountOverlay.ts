@@ -110,10 +110,10 @@ export function createAccountOverlay(
 
   const render = (): void => {
     const snapshot = store.getSnapshot()
+    open = false
     host.replaceChildren()
     trigger = null
     menu = null
-    open = false
     host.hidden = !visible || snapshot.status === 'idle'
 
     if (snapshot.status === 'idle') return
@@ -143,8 +143,10 @@ export function createAccountOverlay(
     menu.setAttribute('role', 'menu')
     menu.hidden = true
     // The user's own text. system-ui on purpose: the pixel fonts lack Vietnamese glyphs.
-    if (profile.name) menu.append(el('p', 'acct-name', profile.name))
-    if (profile.email) menu.append(el('p', 'acct-email', profile.email))
+    // No name: the email is the main line. No email: no second line.
+    const main = profile.name || profile.email
+    if (main) menu.append(el('p', 'acct-name', main))
+    if (profile.name && profile.email) menu.append(el('p', 'acct-email', profile.email))
 
     const link = el('a', 'acct-item', t('duckerProfile'))
     link.setAttribute('role', 'menuitem')
@@ -162,6 +164,20 @@ export function createAccountOverlay(
       host.querySelector<HTMLElement>('button')?.focus()
     })
 
+    menu.addEventListener('keydown', (event) => {
+      const items = [...menu!.querySelectorAll<HTMLElement>('[role="menuitem"]')]
+      const at = items.indexOf(document.activeElement as HTMLElement)
+      let next = -1
+      if (event.key === 'ArrowDown') next = (at + 1) % items.length
+      else if (event.key === 'ArrowUp') next = (at <= 0 ? items.length : at) - 1
+      else if (event.key === 'Home') next = 0
+      else if (event.key === 'End') next = items.length - 1
+      else if (event.key === 'Tab') setOpen(false, false) // focus moves on by itself
+      if (next >= 0) {
+        event.preventDefault()
+        items[next]?.focus()
+      }
+    })
     menu.append(link, out)
     host.append(trigger, menu)
   }
@@ -175,11 +191,18 @@ export function createAccountOverlay(
   }
   // Phaser listens for Enter / Space / arrows on `window`; a key pressed while the
   // focus is on one of these buttons must not also press PLAY underneath.
+  // Focus leaving the control by any other route (a click elsewhere, a Tab out) closes
+  // the menu without pulling focus back.
+  const onFocusOut = (event: FocusEvent): void => {
+    const to = event.relatedTarget as Node | null
+    if (open && !(to !== null && host.contains(to))) setOpen(false, false)
+  }
   const stopKeys = (event: KeyboardEvent): void => event.stopPropagation()
 
   document.addEventListener('keydown', onKeyDown, true)
   document.addEventListener('pointerdown', onPointerDown)
   host.addEventListener('keydown', stopKeys)
+  host.addEventListener('focusout', onFocusOut)
   const unsubscribe = store.subscribe(render)
   render()
 
@@ -193,6 +216,7 @@ export function createAccountOverlay(
       document.removeEventListener('keydown', onKeyDown, true)
       document.removeEventListener('pointerdown', onPointerDown)
       host.removeEventListener('keydown', stopKeys)
+      host.removeEventListener('focusout', onFocusOut)
       host.replaceChildren()
       host.hidden = true
     },
