@@ -26,11 +26,15 @@ graph LR
   Player[Nguoi choi] --> Game[Platformer<br/>static SPA]
   Game --> LS[(localStorage<br/>tren may nguoi choi)]
   Game -.->|chi font, co the that bai| GF[Google Fonts]
+  Game -.->|tuy chon, co co: dang nhap Ducker ID| DID[Ducker ID<br/>OIDC + PKCE]
   Pages[GitHub Pages] -.->|serve tinh| Game
 ```
 
 Không có backend, không có API, không có datastore phía server. Lệnh gọi ra ngoài
-duy nhất là Google Fonts, và nó **được phép thất bại** (NFR-REL-01).
+mặc định duy nhất là Google Fonts, và nó **được phép thất bại** (NFR-REL-01).
+Cạnh nét đứt tới Ducker ID chỉ tồn tại khi cờ `VITE_FEATURE_DUCKER_SIGN_IN=true` và
+đủ cấu hình, và chỉ chạy sau khi người chơi bấm SIGN IN (ADR-0013). Bản deploy không
+bật cờ nên cạnh đó không có.
 
 ## 2. Container — hệ thống gồm những khối chạy được nào
 
@@ -60,6 +64,9 @@ thử được (invariants #2).
 | `core/storage` | Đọc/ghi localStorage, validate, migrate theo `version` | `core/progress` | `phaser`, `game/*` |
 | `core/scale` | Tính hệ số phóng **số nguyên** và letterbox từ kích thước viewport | — | `phaser` |
 | `core/strings` | Bảng khoá → chuỗi hiển thị, ASCII-only | — | tất cả |
+| `core/auth` · `core/pkce` | Phần **thuần** của đăng nhập Ducker ID: kiểu, cổng cấu hình `readDuckerConfig`, chữ cái avatar, PKCE | — | `phaser`, `game/*`, `window`, storage, mạng |
+| `game/auth/*` | Phần chạm trình duyệt của đăng nhập: đọc env, redirect + bắt callback, `sessionStorage`, hai lệnh `fetch`, session store trong bộ nhớ | `core/*` | `phaser`, scene |
+| `game/accountOverlay` | Nút/menu tài khoản bằng DOM, chỉ hiện khi TitleScene chạy | `core/*`, `game/auth/*` | ghi storage |
 | `game/scenes/*` | Vòng đời màn hình, nạp asset, đấu dây input và physics | `core/*`, `phaser`, `game/*` | ghi thẳng localStorage |
 | `game/entities/*` | Player, ba loại địch, khối, bệ di động, checkpoint | `core/*`, `phaser` | `core/storage` |
 | `game/audio` | Phát SFX, tắt tiếng, mở khoá WebAudio ở cú chạm đầu | `phaser` | `core/*` |

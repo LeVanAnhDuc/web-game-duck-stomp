@@ -33,6 +33,13 @@ export const STRINGS = {
   newBest: 'NEW BEST',
   nextN: 'LEVEL {n}',
 
+  // Ducker ID sign-in (ADR-0013). The account's own name and email are NOT here:
+  // they come from the user's profile and are drawn in a system font, not a pixel one.
+  signIn: 'SIGN IN',
+  signingIn: 'SIGNING IN...',
+  duckerProfile: 'DUCKER ID PROFILE',
+  signOut: 'SIGN OUT',
+
   // Icon-only controls. These are never drawn as text — they are the accessible
   // names for buttons that carry only a sprite (NFR-A11Y-04).
   soundOn: 'Sound on',
@@ -41,6 +48,7 @@ export const STRINGS = {
   moveLeft: 'Move left',
   moveRight: 'Move right',
   jump: 'Jump',
+  duckerAccount: 'Ducker ID account',
 } as const
 
 export type StringKey = keyof typeof STRINGS

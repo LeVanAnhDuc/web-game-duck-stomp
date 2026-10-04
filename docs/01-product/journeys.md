@@ -149,3 +149,29 @@ số xu giấu này.
   đường bắt buộc để xong màn.
 
 **Chức năng liên quan:** FR-05 · FR-07
+
+---
+
+## US-06 · Đăng nhập Ducker ID (tuỳ chọn, sau cờ)
+
+**Bối cảnh:** build có bật cờ `VITE_FEATURE_DUCKER_SIGN_IN` và đủ cấu hình (hiện chỉ
+chạy local; bản deploy chưa bật). Người chơi đang ở màn Title.
+
+**Các bước:**
+1. Thấy nút `SIGN IN` ở góc phải trên, cạnh nút tiếng.
+2. Bấm. Cả trang chuyển sang Ducker ID (đăng nhập ở đó nếu chưa).
+3. Quay về đúng màn Title, URL sạch. Nút thành avatar.
+4. Bấm avatar: thấy tên, email, `DUCKER ID PROFILE`, `SIGN OUT`.
+5. `SIGN OUT` quên danh tính trong bộ nhớ; nút `SIGN IN` quay lại.
+
+**Kết quả mong đợi:** game chơi y như cũ — đăng nhập chỉ là một tính năng cộng thêm,
+không chặn gì và không đổi cách lưu tiến độ. Tải lại là chưa đăng nhập.
+
+**Điều gì có thể sai:**
+- Người chơi từ chối ở Ducker ID, hoặc `state` bị đổi → quay về chưa đăng nhập,
+  im lặng, URL sạch, không gọi endpoint token.
+- Đổi code lấy token hoặc đọc profile lỗi → chưa đăng nhập, im lặng.
+- `sessionStorage` bị chặn → bấm SIGN IN không làm gì (không có chỗ cất verifier).
+- Cờ tắt hoặc thiếu một biến → không có nút, không có request, không đụng storage.
+
+**Chức năng liên quan:** FR-20

@@ -2,7 +2,7 @@
 
 > **Trả lời:** Hệ thống có những chức năng nào, mỗi cái đang ở trạng thái gì?
 > **Trạng thái:** 🟢 đủ
-> **Cập nhật:** 2026-09-08 · commit —
+> **Cập nhật:** 2026-10-04 · commit —
 > **Cập nhật khi:** brainstorm ra chức năng mới (cấp FR mới) · một FR chuyển trạng thái
 
 <!-- CÁCH ĐIỀN
@@ -39,3 +39,4 @@ KHÔNG chứa: cách hiện thực, ngưỡng phi chức năng (-> nfr.md), lý 
 | FR-17 | SFX và nút tắt tiếng | US-01 | xong |
 | FR-18 | Render phóng số nguyên trên nền 320×180, letterbox phần dư | US-01 · US-03 | xong |
 | FR-19 | Sáu màn chơi tay-thiết-kế, mỗi màn dạy thêm một thứ | US-01 | xong |
+| FR-20 | Đăng nhập Ducker ID **tuỳ chọn**, sau cờ (ship dark): chỉ danh tính — nút SIGN IN ở màn Title, avatar + menu tên/email/hồ sơ/SIGN OUT | US-06 | xong |

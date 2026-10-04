@@ -41,10 +41,14 @@ jobs:
       # một deploy sớm muộn sẽ đẩy bản đỏ lên.
       - run: pnpm test
 
-      # Không cần biến môi trường nào cho đường dẫn con. `vite.config.ts` đặt
-      # `base: './'` nên mọi đường dẫn asset là tương đối và cùng một bản dist
-      # chạy được ở gốc domain lẫn ở /<tên-repo>/ — kể cả khi tên repo đổi.
+      # `base` đi theo VITE_BASE_PATH (vite.config.ts) — redirect_uri của Ducker ID
+      # phải bằng origin + đường dẫn này nên không thể để tương đối như trước.
+      # Đăng nhập Ducker ID là "ship dark": cờ VITE_FEATURE_DUCKER_SIGN_IN và các
+      # biến VITE_DUCKER_* CỐ Ý không được truyền ở đây (ADR-0013), nên bản deploy
+      # không có nút đăng nhập.
       - run: pnpm build
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
 
       # KHÔNG dùng `enablement: true`: nó cần quyền admin repo mà GITHUB_TOKEN
       # không có, và sẽ đỏ với "Resource not accessible by integration". Bật Pages

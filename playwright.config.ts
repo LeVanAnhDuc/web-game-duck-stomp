@@ -10,6 +10,9 @@ import { defineConfig, devices } from '@playwright/test'
  * covered by unit tests on `core/movement`, which are deterministic because delta
  * time is an argument there.
  *
+ * Ducker ID sign-in has its own spec and its own dev server on :4174 with the flag on;
+ * every other spec runs against :4173 where the flag is off (ADR-0013).
+ *
  * What this suite is for: the app boots, the fonts and textures come up, the first
  * level runs, and nothing shouts in the console.
  */
@@ -44,13 +47,35 @@ export default defineConfig({
    * separately: `pnpm check` type-checks and builds it, and the build failing is
    * a hard stop.
    */
-  webServer: {
-    // `--host 127.0.0.1` is load-bearing: left to itself Vite binds "localhost",
-    // which can resolve to ::1, and Playwright's health check on 127.0.0.1 then
-    // waits out its full timeout against a server that is already up.
-    command: 'pnpm dev --port 4173 --strictPort --host 127.0.0.1',
-    url: 'http://127.0.0.1:4173',
-    reuseExistingServer: process.env['CI'] === undefined,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      // `--host 127.0.0.1` is load-bearing: left to itself Vite binds "localhost",
+      // which can resolve to ::1, and Playwright's health check on 127.0.0.1 then
+      // waits out its full timeout against a server that is already up.
+      command: 'pnpm dev --port 4173 --strictPort --host 127.0.0.1',
+      url: 'http://127.0.0.1:4173',
+      reuseExistingServer: process.env['CI'] === undefined,
+      timeout: 120_000,
+      // Flag OFF, explicitly. A developer's local `.env` may switch sign-in on, and
+      // a real environment variable beats `.env` in Vite, so the empty value here
+      // keeps this server the "shipped dark" build whatever is in `.env`.
+      env: { VITE_FEATURE_DUCKER_SIGN_IN: '' },
+    },
+    {
+      // The same dev server with Ducker ID sign-in ON, pointing at a fake issuer that
+      // is never resolved: tests/ducker-id-sign-in.spec.ts routes every request to it.
+      command: 'pnpm dev --port 4174 --strictPort --host 127.0.0.1',
+      url: 'http://127.0.0.1:4174',
+      reuseExistingServer: process.env['CI'] === undefined,
+      timeout: 120_000,
+      env: {
+        VITE_BASE_PATH: '/',
+        VITE_FEATURE_DUCKER_SIGN_IN: 'true',
+        VITE_DUCKER_ISSUER: 'http://ducker.test',
+        VITE_DUCKER_CLIENT_ID: 'e2e-client',
+        VITE_DUCKER_SCOPE: 'openid profile email',
+        VITE_DUCKER_PROFILE_PATH: '/profile',
+      },
+    },
+  ],
 })
