@@ -143,6 +143,25 @@ describe('accountOverlay', () => {
     expect(document.activeElement).toBe(out)
   })
 
+  it('keeps menu keys away from a window listener (the game) only while the menu is open', () => {
+    mount(signedIn)
+    const seen: string[] = []
+    const gameKeys = (event: KeyboardEvent): void => void seen.push(event.key)
+    window.addEventListener('keydown', gameKeys) // bubble phase, like Phaser's
+    const press = (key: string): void => {
+      document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
+    }
+    const trigger = host.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')!
+    trigger.focus()
+    trigger.click()
+    for (const key of ['ArrowUp', 'ArrowDown', 'Escape']) press(key)
+    expect(seen).toEqual([])
+    expect(trigger.getAttribute('aria-expanded')).toBe('false')
+    for (const key of ['ArrowUp', 'ArrowDown', 'Escape']) press(key)
+    window.removeEventListener('keydown', gameKeys)
+    expect(seen.length).toBeGreaterThan(0)
+  })
+
   it('closes on Tab without pulling focus back', () => {
     mount(signedIn)
     const trigger = host.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')!

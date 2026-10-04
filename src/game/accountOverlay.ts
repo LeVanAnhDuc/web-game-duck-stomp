@@ -184,7 +184,10 @@ export function createAccountOverlay(
 
   // Capture phase: runs before the overlay's own keydown guard below.
   const onKeyDown = (event: KeyboardEvent): void => {
-    if (open && event.key === 'Escape') setOpen(false, true)
+    if (open && event.key === 'Escape') {
+      event.stopPropagation() // the game's own Escape (pause) must not fire behind the menu
+      setOpen(false, true)
+    }
   }
   const onPointerDown = (event: Event): void => {
     if (open && !host.contains(event.target as Node)) setOpen(false, false)
@@ -200,7 +203,11 @@ export function createAccountOverlay(
     // pointerdown handler's job; only a real focus target outside the control closes here.
     if (open && to !== null && !host.contains(to)) setOpen(false, false)
   }
-  const stopKeys = (event: KeyboardEvent): void => event.stopPropagation()
+  // Enter / Space always (they activate the focused button); everything else only while
+  // the menu is open, so a closed menu leaves the game's keys exactly as before.
+  const stopKeys = (event: KeyboardEvent): void => {
+    if (open || event.key === 'Enter' || event.key === ' ') event.stopPropagation()
+  }
 
   document.addEventListener('keydown', onKeyDown, true)
   document.addEventListener('pointerdown', onPointerDown)
