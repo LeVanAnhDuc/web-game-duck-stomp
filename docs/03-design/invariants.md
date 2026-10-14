@@ -34,6 +34,6 @@ Chín bất biến mặc định của scaffold nói về server, ORM, migration
 | 7 | `--gold` chỉ dùng cho xu / kỷ lục / CTA / focus; `--heart` chỉ dùng cho máu | Ngữ nghĩa màu vỡ. Người chơi học "vàng = đáng lấy" rồi gặp vàng ở chỗ vô nghĩa |
 | 8 | Rơi khỏi màn là **chết ngay, bỏ qua tim** — ngoại lệ duy nhất của luật sát thương | Người chơi rơi xuống vực mà chỉ mất một tim rồi lơ lửng ở đâu đó ngoài màn |
 | 9 | Đồng hồ **không reset khi hồi sinh** | Kỷ lục thời gian trở thành vô nghĩa, mà bảng tổng kết vẫn hiện số bình thường |
-| 10 | Mọi chuỗi hiển thị **chỉ ASCII** và đi qua bảng khoá | Chữ có dấu rơi sang font dự phòng — hỏng một phần, trông như lỗi ngẫu nhiên |
+| 10 | Mọi chuỗi hiển thị **của game** **chỉ ASCII** và đi qua bảng khoá (tên/email của người chơi trong menu tài khoản là dữ liệu của họ, vẽ bằng `system-ui` — ADR-0013) | Chữ có dấu rơi sang font dự phòng — hỏng một phần, trông như lỗi ngẫu nhiên |
 | 11 | Nút cảm ứng hiện/ẩn theo **input thật đã nhận**, không theo user-agent | Laptop cảm ứng bị đoán sai; nút che màn chơi của người đang dùng bàn phím |
 | 12 | Cờ "đã thấy cảm ứng" phải bật được **từ ngoài** cụm nút cảm ứng (pointerdown ở phạm vi scene + `wasTouch`) | Nút ẩn cho tới khi có chạm, mà thứ duy nhất báo có chạm lại là chính mấy nút đang ẩn — vòng tròn tự khoá. Người chơi cảm ứng vào được màn chơi rồi **không nhích một pixel**. Không test nào đỏ, không log nào lỗi (ADR-0010) |

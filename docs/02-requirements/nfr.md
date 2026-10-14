@@ -2,7 +2,7 @@
 
 > **Trả lời:** Ngưỡng nào áp cho **mọi** feature, để không phải nhắc lại từng lần?
 > **Trạng thái:** 🟢 đủ — đã rà theo dự án; các ngưỡng của server/DB đã retire tại chỗ
-> **Cập nhật:** 2026-09-08 · commit —
+> **Cập nhật:** 2026-10-04 · commit —
 > **Cập nhật khi:** thêm loại tài nguyên mới · thêm nhóm người dùng · sau sự cố sinh ra ngưỡng mới
 
 <!-- CÁCH ĐIỀN
@@ -47,7 +47,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 | ~~NFR-SEC-01~~ | ~~Mọi mutation kiểm quyền ở server~~ **(bỏ)** — không có server. Toàn bộ trạng thái nằm trên máy người chơi và **không đáng tin theo thiết kế**; không có gì để bảo vệ khỏi chính họ | — |
 | ~~NFR-SEC-02~~ | ~~Không log PII~~ **(bỏ)** — không thu PII nào. Xem NFR-DATA-01 | — |
 | ~~NFR-SEC-03~~ | ~~Rate limit đăng nhập~~ **(bỏ)** — không có tài khoản | — |
-| NFR-SEC-04 | Không có secret nào trong repo. Dự án này **không cần biến môi trường nào để chạy** | `grep` + `.env.example` giữ trạng thái rỗng có chủ ý |
+| NFR-SEC-04 | Không có secret nào trong repo. Dự án chạy được với **một** biến duy nhất (`VITE_BASE_PATH`); đăng nhập Ducker ID (ADR-0013) thêm 5 biến `VITE_*` **công khai và tuỳ chọn** — thiếu một là tính năng tắt. Không biến nào là secret (public client, không `client_secret`), và không giá trị nào có mặc định trong code | `grep` + `.env.example` khớp code |
 | NFR-SEC-05 | Dependency không có lỗ hổng mức high trở lên | `pnpm audit --audit-level=high` |
 | ~~NFR-SEC-06~~ | ~~Lỗi trả client không chứa stack trace~~ **(bỏ)** — client-only, không có biên server/client | — |
 
@@ -69,7 +69,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 | NFR-I18N-01 | Không hardcode chuỗi hiển thị trong code; mọi chuỗi đi qua một bảng khoá duy nhất | grep chuỗi literal trong `src/game/` |
 | ~~NFR-I18N-02~~ | ~~Thời gian lưu ở UTC~~ **(bỏ)** — không lưu mốc thời gian nào, chỉ lưu **khoảng** thời gian (ms) | — |
 | ~~NFR-I18N-03~~ | ~~Định dạng số/tiền/ngày theo locale~~ **(bỏ)** — chỉ hiện `m:ss` và số nguyên | — |
-| NFR-I18N-04 | Mọi chuỗi hiển thị **chỉ dùng ASCII** — font pixel không có glyph tiếng Việt có dấu thanh (ADR-0005) | test tự động: quét bảng chuỗi, fail nếu có codepoint > 127 |
+| NFR-I18N-04 | Mọi chuỗi hiển thị **chỉ dùng ASCII** — font pixel không có glyph tiếng Việt có dấu thanh (ADR-0005). Nhãn của đăng nhập (`SIGN IN`…) vẫn ASCII và nằm trong bảng. **Ngoại lệ có giới hạn (ADR-0013):** tên và email của chính người chơi — dữ liệu của họ, không phải chuỗi của game — được vẽ bằng `system-ui`, không bằng font pixel | test tự động: quét bảng chuỗi, fail nếu có codepoint > 127 |
 
 ## Reliability
 
@@ -85,7 +85,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 
 | ID | Ngưỡng | Cách kiểm |
 | --- | --- | --- |
-| NFR-DATA-01 | **Dự án không thu thập bất kỳ PII nào.** Không tên, không email, không định danh máy, không analytics, không cookie | bảng dưới + review mọi lệnh ghi storage |
+| NFR-DATA-01 | **Dự án không thu thập và không lưu bất kỳ PII nào.** Không analytics, không cookie, không định danh máy. **Ngoại lệ có giới hạn (ADR-0013):** khi người chơi tự bấm đăng nhập Ducker ID, tên/email/ảnh của họ được đọc từ Ducker ID, **chỉ giữ trong bộ nhớ của tab** và mất khi tải lại. Storage duy nhất mà tính năng chạm vào là `sessionStorage` khoá `ducker.pkce`, xoá ngay khi người chơi quay về. Mạng chỉ tới issuer đã cấu hình, và tới URL ảnh đại diện mà issuer trả về (có thể ở host khác; không giới hạn ảnh), chỉ sau khi người chơi bấm đăng nhập và đăng nhập xong; cờ tắt thì không có gì | bảng dưới + review mọi lệnh ghi storage + e2e `ducker-id-sign-in-off.spec.ts` |
 | ~~NFR-DATA-02~~ | ~~Xoá tài khoản thì xoá PII~~ **(bỏ)** — không có tài khoản. Người chơi xoá dữ liệu bằng cách xoá site data của trình duyệt | — |
 | NFR-DATA-03 | Có đường migrate save khi cấu trúc đổi, và đường đó **đã chạy thật một lần** trong test | unit test migrate từ mọi version cũ lên version hiện tại |
 
@@ -93,7 +93,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 
 | Trường | Nằm ở | Giữ bao lâu |
 | --- | --- | --- |
-| _không có_ | — | — |
+| `name`, `email`, `picture` từ `/oauth/userinfo` (chỉ khi đăng nhập Ducker ID) | bộ nhớ của tab | tới khi tải lại hoặc bấm SIGN OUT; không bao giờ ghi xuống storage |
 
 ## Game — riêng của dự án này
 

@@ -2,7 +2,7 @@
 
 > **Trả lời:** Sản phẩm này là gì, cho ai, và **KHÔNG** làm gì?
 > **Trạng thái:** 🟢 đủ
-> **Cập nhật:** 2026-09-08 · commit —
+> **Cập nhật:** 2026-10-04 · commit —
 > **Cập nhật khi:** định vị đổi · thêm/bớt một Non-Goal · trần chi phí đổi
 
 <!-- CÁCH ĐIỀN
@@ -45,9 +45,12 @@ localStorage tồn tại trong dự án này.
 
 ## 4. Non-Goals — dứt khoát không làm
 
-- **Không có backend, không có tài khoản, không có bảng xếp hạng online.** Tiến độ
-  nằm trong localStorage của máy người chơi. Đổi máy là mất — chấp nhận. Có server
-  là có chi phí, có dữ liệu người dùng, và có bài toán chống gian lận điểm.
+- **Không có backend, không có tài khoản do game sở hữu, không có bảng xếp hạng
+  online.** Ngoại lệ duy nhất (ADR-0013): đăng nhập Ducker ID **tuỳ chọn**, chỉ để
+  biết "ai đang chơi" — chỉ danh tính, không backend, không đồng bộ. Tiến độ vẫn nằm
+  trong localStorage của máy người chơi và đăng nhập không đổi điều đó. Đổi máy là
+  mất — chấp nhận. Có server là có chi phí, có dữ liệu người dùng, và có bài toán
+  chống gian lận điểm.
 - **Không có hệ mạng và không có game over** (ADR-0003). Nghe hợp lý vì Mario có,
   nhưng Mario là máy arcade ăn xu.
 - **Không có nút thứ ba khi đang chơi** (ADR-0004). Nghĩa là không có nút chạy,

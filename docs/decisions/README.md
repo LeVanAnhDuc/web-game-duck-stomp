@@ -20,6 +20,7 @@
 | [ADR-0010](0010-touch-controls-revealed-by-any-real-touch.md) | Bất kỳ cú chạm thật nào cũng làm hiện cụm nút cảm ứng | 2026-09-12 | accepted |
 | [ADR-0011](0011-locked-node-stays-selectable-cta-refuses-visibly.md) | Node bị khoá vẫn chọn được, nhưng CTA từ chối một cách thấy được | 2026-09-12 | accepted |
 | [ADR-0012](0012-keep-simultaneous-hold-record-the-measured-cost.md) | Giữ yêu cầu giữ hai phím cùng lúc, và ghi lại cái giá đã đo | 2026-09-12 | accepted |
+| [ADR-0013](0013-ducker-id-sign-in-behind-a-flag.md) | Đăng nhập Ducker ID tuỳ chọn, chỉ danh tính, ship dark sau một cờ | 2026-10-04 | accepted |
 <!-- END:auto -->
 
 Trạng thái: `accepted` · `superseded by ADR-00xx` · `deprecated`

@@ -57,3 +57,5 @@ thêm một bảng dịch, không phải sửa code.
 
 **Điều kiện xem lại:** tìm được một cặp font pixel phủ `U+1EA0–1EF1` với license
 dùng được, hoặc có người chơi thật báo rào cản ngôn ngữ.
+
+> Xem ADR-0013: ngoại lệ có giới hạn cho tên/email của người chơi (vẽ bằng `system-ui`); nhãn vẫn ASCII.
