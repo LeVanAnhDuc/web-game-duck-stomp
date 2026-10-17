@@ -531,9 +531,43 @@ export class GamePage extends BasePage {
     return this.page.evaluate(() => performance.now());
   }
 
+  /**
+   * Removes every enemy from the running level, so a case about one damage source is not decided by a walker that
+   * happened to patrol into the player. Test isolation, not a game action. @dev-build
+   */
+  async removeEnemies(): Promise<void> {
+    await this.page.evaluate(() => (window as any).duckstomp.scene.getScene("Game").enemies.clear(true, true));
+  }
+
   /** Seeds the powered form (as taking a mushroom would). @dev-build */
   async setPowered(on: boolean): Promise<void> {
     await this.page.evaluate((v) => (window as any).duckstomp.scene.getScene("Game").player.setPowered(v), on);
+  }
+
+  /**
+   * Keeps the player standing at a world position (e.g. on spikes, which knock the player back) for up to `maxFrames`
+   * frames, re-placing it every frame from inside the page. Stops the moment the player dies, so a respawned player
+   * is never put back — that race only exists when the test drives the loop from outside. Resolves with the frames run.
+   * @dev-build
+   */
+  async standOn(x: number, y: number, maxFrames: number): Promise<number> {
+    return this.page.evaluate(
+      ([px, py, max]) =>
+        new Promise<number>((resolve) => {
+          const play = (window as any).duckstomp.scene.getScene("Game");
+          let died = false;
+          let frames = 0;
+          play.events.once("playerDied", () => (died = true));
+          const tick = (): void => {
+            if (died || frames >= max) return resolve(frames);
+            play.player.body.reset(px, py);
+            frames += 1;
+            requestAnimationFrame(tick);
+          };
+          tick();
+        }),
+      [x, y, maxFrames] as const,
+    );
   }
 
   /** Puts the player on the goal flag and waits for the level-clear card. @dev-build */

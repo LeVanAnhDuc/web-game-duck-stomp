@@ -13,24 +13,28 @@ test.describe("damage", () => {
     await gamePage.goto();
     await gamePage.startLevel("4");
     await gamePage.waitUntilGrounded();
+    // Level 4's walker patrols towards the spawn point; left in, it decides some runs instead of the spikes.
+    await gamePage.removeEnemies();
     await gamePage.recordEvents();
   });
 
   test("chạm gai mất đúng một tim, rồi bất tử một lúc", { tag: ["@TC-HEALTH-001", "@smoke", "@dev-build"] }, async ({ gamePage }) => {
     const spikes = (await gamePage.levelObjects("spikes"))[0]!;
+    const spawn = (await gamePage.levelObjects("spawn"))[0]!;
     await gamePage.teleport(spikes.x, spikes.y);
-    await expect.poll(async () => (await gamePage.state()).hearts).toBe(2);
-    expect((await gamePage.hud()).hearts).toBe(2);
+    await expect.poll(async () => (await gamePage.events()).some((e) => e.name === "playerHit")).toBe(true);
+    // Back to safe ground at once: the knock-back can drop the player onto the spikes again once the window ends.
+    await gamePage.teleport(spawn.x, spawn.y);
     const first = (await gamePage.events()).filter((e) => e.name === "playerHit");
-    expect(first.map((e) => e.payload)).toEqual([{ hearts: 2 }]);
+    expect(first[0]!.payload).toEqual({ hearts: 2 });
+    if (first.length === 1) await expect.poll(async () => (await gamePage.hud()).hearts).toBe(2);
 
-    // Keep standing on the spikes: a second hit may only land once the invulnerability window has passed, measured
+    // Keep standing on the spikes: a further hit may only land once the invulnerability window has passed, measured
     // on the game's own clock (a loaded machine stretches real time between frames, not game time).
-    for (let i = 0; i < 6; i += 1) {
-      await gamePage.teleport(spikes.x, spikes.y);
-      await gamePage.frames(2);
-    }
-    const hits = (await gamePage.events()).filter((e) => e.name === "playerHit");
+    await gamePage.standOn(spikes.x, spikes.y, 20);
+    const events = await gamePage.events();
+    const diedAt = events.findIndex((e) => e.name === "playerDied");
+    const hits = (diedAt === -1 ? events : events.slice(0, diedAt)).filter((e) => e.name === "playerHit");
     for (let i = 1; i < hits.length; i += 1) {
       expect(hits[i]!.gameTime - hits[i - 1]!.gameTime).toBeGreaterThanOrEqual(INVULN_MS);
     }
@@ -43,15 +47,12 @@ test.describe("damage", () => {
       const spikes = (await gamePage.levelObjects("spikes"))[0]!;
       const spawn = (await gamePage.levelObjects("spawn"))[0]!;
 
-      // Stand on the spikes until the third hit lands. Each hit starts INVULN_MS of game-time invulnerability, so the
-      // player is put back on the spikes every few frames until the next one counts.
+      // Stand on the spikes until the third hit kills. Each hit starts INVULN_MS of game-time invulnerability and
+      // knocks the player back, so the page re-places the player every frame until the death (GamePage.standOn).
       const hits = async () => (await gamePage.events()).filter((e) => e.name === "playerHit").length;
-      const until = Date.now() + 20_000;
-      while ((await hits()) < 3 && Date.now() < until) {
-        await gamePage.teleport(spikes.x, spikes.y);
-        await gamePage.frames(4);
-      }
-      expect(await hits()).toBe(3);
+      await gamePage.standOn(spikes.x, spikes.y, 600);
+      const dump = async () => JSON.stringify((await gamePage.events()).map((e) => [e.name, e.payload, Math.round(e.gameTime)]));
+      expect(await hits(), await dump()).toBe(3);
       const times = (await gamePage.events()).filter((e) => e.name === "playerHit").map((e) => e.gameTime);
       // No hit inside the previous one's invulnerability window (game clock).
       expect(times[1]! - times[0]!).toBeGreaterThanOrEqual(INVULN_MS);
@@ -65,7 +66,7 @@ test.describe("damage", () => {
       expect(respawned!.at - died!.at).toBeLessThan(1000);
 
       const state = await gamePage.state();
-      expect(state.hearts).toBe(3);
+      expect(state.hearts, await dump()).toBe(3);
       expect(state.respawnX).toBe(spawn.x);
       expect(state.respawnY).toBe(spawn.y);
       expect((await gamePage.hud()).hearts).toBe(3);

@@ -20,7 +20,9 @@
   4, đã qua checkpoint" là ví dụ lệch dữ liệu đã được `.claude/skills/ux-persona-review/references/red-routes.md` ghi
   nhận; không coi là bug của game. Ở màn 1–5 "checkpoint gần nhất" là điểm xuất phát.
 - **Q2** Nguồn sát thương dùng trong test là **gai tĩnh** của màn 4: nó đứng yên, nên đặt nhân vật lên là chạm chắc
-  chắn. Địch từ cạnh bên đi theo cùng hàm `damage()` (design.md §2 "một luật, không hai").
+  chắn. Địch từ cạnh bên đi theo cùng hàm `damage()` (design.md §2 "một luật, không hai"). Trong các case sát thương,
+  địch của màn 4 được gỡ khỏi màn trước khi bắt đầu (`GamePage.removeEnemies`): con `walker` đi tuần dần về phía điểm
+  xuất phát và từng đâm vào nhân vật vừa hồi sinh ở vài lần chạy, làm kết quả phụ thuộc tốc độ máy thay vì hành vi đang kiểm.
 - **Q3** Dạng mạnh (REQ-HEALTH-06) được dựng bằng `player.setPowered(true)` qua `window.duckstomp` — gieo trạng thái
   như gieo save; lấy nấm thật cần đội khối "?" (vật lý, xem `level-play` Q1).
 - **Q4** "Dưới một giây" (README, US-04) được kiểm là: sau cú chết, nhân vật đã ở điểm hồi sinh với 3 tim trong vòng
