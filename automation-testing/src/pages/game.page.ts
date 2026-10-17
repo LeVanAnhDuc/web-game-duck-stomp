@@ -27,6 +27,7 @@ export interface PlayState {
   x: number;
   y: number;
   vy: number;
+  onGround: boolean;
   respawnX: number;
   respawnY: number;
   levelHeightPx: number;
@@ -287,6 +288,7 @@ export class GamePage extends BasePage {
         x: play.player.x,
         y: play.player.y,
         vy: play.player.body.velocity.y,
+        onGround: play.player.body.blocked.down === true || play.player.body.touching.down === true,
         respawnX: play.respawnAt.x,
         respawnY: play.respawnAt.y,
         levelHeightPx: play.level.heightPx,
@@ -320,6 +322,59 @@ export class GamePage extends BasePage {
       },
       [x, y] as const,
     );
+  }
+
+  /**
+   * The level file exactly as the site serves it (`levels/level-<id>.json`, relative to the base path), flattened to
+   * its objects with their custom properties. Independent of how the game parses it.
+   */
+  async levelFile(id: string): Promise<{ status: number; objects: Array<LevelObject & { props: Record<string, unknown> }> }> {
+    return this.page.evaluate(async (levelId) => {
+      const res = await fetch(`levels/level-${levelId}.json`);
+      if (!res.ok) return { status: res.status, objects: [] };
+      const json = await res.json();
+      const objects = json.layers
+        .filter((l: any) => l.type === "objectgroup")
+        .flatMap((l: any) => l.objects)
+        .map((o: any) => ({
+          type: o.type ?? o.class,
+          x: o.x,
+          y: o.y,
+          props: Object.fromEntries((o.properties ?? []).map((p: any) => [p.name, p.value])),
+        }));
+      return { status: res.status, objects };
+    }, id);
+  }
+
+  /** Holds a key until `done` says so (or the timeout), then releases it. */
+  async holdUntil(key: string, done: () => Promise<boolean>, timeout = 10_000): Promise<void> {
+    await this.page.keyboard.down(key);
+    try {
+      const until = Date.now() + timeout;
+      while (!(await done())) {
+        if (Date.now() > until) throw new Error(`holding ${key}: condition not reached in ${timeout}ms`);
+        await this.frames(2);
+      }
+    } finally {
+      await this.page.keyboard.up(key);
+    }
+  }
+
+  /**
+   * Waits until the player stands on the ground: the same height for several frames in a row. (Arcade reports
+   * `blocked.down` only every other frame while standing, because core/movement re-applies gravity each step.) @dev-build
+   */
+  async waitUntilGrounded(): Promise<void> {
+    let still = 0;
+    let lastY = Number.NaN;
+    const until = Date.now() + 10_000;
+    while (still < 6) {
+      if (Date.now() > until) throw new Error("player never settled on the ground");
+      const { y } = await this.state();
+      still = y === lastY ? still + 1 : 0;
+      lastY = y;
+      await this.frames(1);
+    }
   }
 
   /** The HUD as drawn: hearts (full count), coin label, clock. @dev-build */
