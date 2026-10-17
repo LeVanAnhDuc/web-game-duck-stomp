@@ -236,6 +236,27 @@ export class GamePage extends BasePage {
     return this.page.evaluate(() => (window as any).duckstomp.scene.getScene("WorldMap").selected as string);
   }
 
+  /** The map's card for the selected node, and the total in the top bar. @dev-build */
+  async mapCard(): Promise<{ title: string; best: string; coins: string; coinIconVisible: boolean; totalCoins: string }> {
+    return this.page.evaluate(() => {
+      const scene = (window as any).duckstomp.scene.getScene("WorldMap");
+      // The top-bar total is the first Text the scene adds (WorldMapScene.create).
+      const total = scene.children.list.find((o: any) => o.type === "Text");
+      return {
+        title: scene.cardTitle.text,
+        best: scene.cardBest.text,
+        coins: scene.cardCoins.text,
+        coinIconVisible: scene.cardCoinIcon.visible === true,
+        totalCoins: total?.text ?? "",
+      };
+    });
+  }
+
+  /** Selects a node with the arrow keys, the way a keyboard player does. @dev-build */
+  async selectNode(id: string): Promise<void> {
+    for (let guard = 0; guard < 6 && (await this.selectedNode()) !== id; guard += 1) await this.press("ArrowRight");
+  }
+
   /** True when the START button on the map accepts input. @dev-build */
   async startEnabled(): Promise<boolean> {
     return this.page.evaluate(() => (window as any).duckstomp.scene.getScene("WorldMap").startButton.enabled === true);
