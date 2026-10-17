@@ -14,8 +14,7 @@
     "lint:core": "node scripts/check-core-boundary.mjs",
     "check": "pnpm lint:core && pnpm test && pnpm build",
     "levels": "node scripts/make-level.mjs",
-    "test:e2e": "playwright test",
-    "verify": "pnpm lint:core && pnpm test && pnpm build && pnpm test:e2e",
+    "verify": "pnpm lint:core && pnpm test && pnpm build",
     "check:bundle": "node scripts/check-bundle-size.mjs dist",
     "release:next": "pnpm dlx git-cliff@2.13.1 --workdir .. --bumped-version",
     "release:notes": "pnpm dlx git-cliff@2.13.1 --workdir .. --unreleased --tag $(pnpm dlx git-cliff@2.13.1 --workdir .. --bumped-version) --strip all"
@@ -24,7 +23,6 @@
     "phaser": "^3.90.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.63.0",
     "@types/node": "^26.5.0",
     "happy-dom": "^20.14.5",
     "typescript": "^7.0.2",

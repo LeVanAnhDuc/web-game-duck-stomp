@@ -81,11 +81,21 @@ fill in the client id registered in Ducker ID, add the dev origin
 | `pnpm dev` | Vite dev server |
 | `pnpm build` | Type-check, then build to `dist/` |
 | `pnpm test` | Unit tests for `src/core/` (Vitest) |
-| `pnpm test:e2e` | Browser smoke test at three viewports (Playwright) |
 | `pnpm lint:core` | Enforces the `src/core/` purity boundary |
 | `pnpm check:bundle` | Fails if the gzipped script payload exceeds its budget |
 | `pnpm levels` | Regenerates the level files from their ASCII maps |
-| `pnpm verify` | Boundary, tests, build and end-to-end, in order |
+| `pnpm verify` | Boundary, unit tests and build, in order |
+
+The end-to-end regression suite is its own package in `automation-testing/` (Playwright).
+It starts the game's Vite dev server itself (plus a second one with Ducker ID sign-in
+switched on against a fake issuer) and runs every feature against it:
+
+```bash
+cd automation-testing
+pnpm install && pnpm exec playwright install chromium
+pnpm test             # every module: title, map, play, HUD, pause, save, touch, sign-in…
+pnpm coverage:check   # requirement ↔ test case ↔ spec ↔ bug traceability
+```
 
 ## How it is put together
 
@@ -97,7 +107,8 @@ client/assets/levels/ Six Tiled JSON files. Levels are data, not code.
 docs/                 Why any of this is the way it is.
 ```
 
-Phaser 3.90 with Arcade Physics, TypeScript, Vite, Vitest and Playwright.
+Phaser 3.90 with Arcade Physics, TypeScript, Vite and Vitest; the Playwright regression
+suite lives next to the app in `automation-testing/`.
 
 The boundary is the load-bearing part. Game feel is the thing most likely to
 regress and the most expensive thing to re-check by hand, so the movement state
@@ -131,7 +142,7 @@ Three workflows, all in `.github/workflows/`:
 
 | Workflow | When | What it does |
 | --- | --- | --- |
-| `ci.yml` | every pull request and push to `main` | Core purity boundary, level reproducibility, type-check, unit tests, dependency review, bundle budget, end-to-end smoke tests |
+| `ci.yml` | every pull request and push to `main` | Core purity boundary, level reproducibility, type-check, unit tests, dependency review, bundle budget, and the `automation-testing/` regression suite (typecheck, traceability check, every module) |
 | `deploy.yml` | push to `main` | Builds and publishes to GitHub Pages. Re-runs the unit tests rather than trusting a CI run it cannot see |
 | `release.yml` | push to `main` | Derives the next version and composes the release notes from the commits since the last tag |
 

@@ -11,6 +11,7 @@ server, no database, no API: everything runs in the browser and progress lives i
 | Folder | Holds |
 | --- | --- |
 | `client/` | the game app: `package.json`, `pnpm-lock.yaml`, `.env.example`, `index.html`, `src/`, `assets/levels/`, `scripts/`, unit tests (vitest, next to the code) |
+| `automation-testing/` | the end-to-end regression suite (Playwright): requirements, test cases, defects, page objects, specs — its own `package.json`, rules in `automation-testing/CLAUDE.md` |
 | `docs/` | product docs, requirements, ADRs, feature specs — map in `docs/README.md` |
 | `.claude/`, `.githooks/`, `.github/`, `cliff.toml` | Claude config, git hooks, CI, release notes config — all at the root |
 
@@ -30,6 +31,16 @@ pnpm check:bundle     # NFR-PERF-08 gzipped script budget (after build)
 pnpm levels           # regenerate assets/levels/*.json from their ASCII maps
 pnpm release:next     # next version, from the commits (git-cliff, whole repo)
 ```
+
+```bash
+cd automation-testing
+pnpm install && pnpm exec playwright install chromium
+pnpm test             # starts the Vite dev servers of ../client (:4173, and :4174 with sign-in on), runs every module
+pnpm typecheck
+pnpm coverage:check   # REQ ↔ TC ↔ spec ↔ bug; --write regenerates the traceability matrix
+```
+
+Regression tests: automation-testing/ (/write-tests)
 
 Git hooks: `git config core.hooksPath .githooks` (commit-msg + pre-commit `lint:core` and
 `tsc` when staged `client/` files change).
