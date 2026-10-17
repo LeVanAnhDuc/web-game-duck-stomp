@@ -1,200 +1,172 @@
-import { expect, test, type CDPSession, type Page } from '@playwright/test'
+import { test, expect } from "@/fixtures";
+import { SCENE, type Box } from "@/pages/game.page";
+import { copy } from "@/data/copy";
 
-/**
- * The two defects the 2026-09-12 persona review found, pinned so they cannot come
- * back — see `docs/specs/touch-controls-and-locked-start/design.md`.
- *
- * These run in their OWN context rather than the suite's projects, because both
- * need `hasTouch: true` and the three configured projects are keyboard/mouse
- * desktops. A touch defect is not reproducible on a context that cannot touch.
- *
- * What is asserted here is state while an input is held, never a physics outcome:
- * "the input snapshot says right is down" is deterministic, "the duck cleared the
- * gap" is frame timing. The same line playwright.config.ts draws.
- */
+// FR-15 / ADR-0010: the on-screen controls appear after the first real touch and hide after the first key press.
+// Runs in project app-touch (hasTouch, desktop user agent — the touchscreen laptop of invariants #11). What is asserted
+// is the input state while a finger is held, never a physics outcome.
 
-const SIZE = { width: 667, height: 375 } as const
+const centre = (b: Box) => ({ x: b.x + b.width / 2, y: b.y + b.height / 2 });
 
-type Snapshot = { left: boolean; right: boolean; jumpHeld: boolean }
+test.describe("on-screen controls", () => {
+  test(
+    "chưa chạm thì không có nút; bấm chuột cũng không làm chúng hiện",
+    { tag: ["@TC-TOUCH-001", "@dev-build"] },
+    async ({ gamePage, page }) => {
+      await gamePage.goto();
+      await gamePage.startLevelOne();
+      await gamePage.waitForActive(SCENE.hud);
+      expect((await gamePage.state()).touchVisible).toBe(false);
 
-type Handle = {
-  scene: { isActive(k: string): boolean; getScene(k: string): unknown }
-}
+      const canvas = (await gamePage.canvas.boundingBox())!;
+      await page.mouse.click(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
+      await gamePage.frames(10);
+      const state = await gamePage.state();
+      expect(state.showTouch).toBe(false);
+      expect(state.touchVisible).toBe(false);
+    },
+  );
 
-/** The dev-only handle, the only way to see inside a canvas (see main.ts). */
-async function inputState(page: Page): Promise<{ showTouch: boolean; touchVisible: boolean; snapshot: Snapshot }> {
-  return page.evaluate(() => {
-    const game = (window as unknown as { duckstomp: Handle }).duckstomp
-    const play = game.scene.getScene('Game') as { inputs: { showTouch: boolean; snapshot: Snapshot } }
-    const hud = game.scene.getScene('Hud') as { children: { list: { type: string; visible: boolean }[] } }
-    const containers = hud.children.list.filter((o) => o.type === 'Container')
-    const touchGroup = containers[containers.length - 1]
-    return {
-      showTouch: play.inputs.showTouch,
-      touchVisible: touchGroup?.visible === true,
-      snapshot: { ...play.inputs.snapshot },
-    }
-  })
-}
+  test(
+    "một cú chạm bất kỳ đâu trong màn chơi làm hiện cụm nút",
+    { tag: ["@TC-TOUCH-002", "@smoke", "@dev-build"] },
+    async ({ gamePage, page }) => {
+      await gamePage.goto();
+      await gamePage.tapIntoLevelOne();
+      // Tapping START was a touch on another scene; the level itself has not been touched yet.
+      expect((await gamePage.state()).touchVisible).toBe(false);
 
-/** Centre of a rectangle inside the canvas, in PAGE coordinates. */
-async function canvasOrigin(page: Page): Promise<{ x: number; y: number; w: number; h: number }> {
-  return page.evaluate(() => {
-    const rect = document.querySelector('canvas')!.getBoundingClientRect()
-    return { x: rect.x, y: rect.y, w: rect.width, h: rect.height }
-  })
-}
+      const canvas = (await gamePage.canvas.boundingBox())!;
+      await page.touchscreen.tap(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
+      await expect.poll(async () => (await gamePage.state()).touchVisible).toBe(true);
+    },
+  );
 
-/**
- * Playwright's touchscreen can only tap — it cannot hold — and a held thumb is the
- * whole point of these controls. CDP can, so the hold goes through CDP.
- */
-async function touchDown(cdp: CDPSession, x: number, y: number): Promise<void> {
-  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] })
-}
+  test(
+    "giữ nút hướng phải / trái thì nhân vật nhận hướng đó, nhấc ngón là hết",
+    { tag: ["@TC-TOUCH-003", "@smoke", "@dev-build"] },
+    async ({ gamePage, page }) => {
+      await gamePage.goto();
+      await gamePage.tapIntoLevelOne();
+      const canvas = (await gamePage.canvas.boundingBox())!;
+      await page.touchscreen.tap(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
+      await expect.poll(async () => (await gamePage.state()).touchVisible).toBe(true);
+      const buttons = await gamePage.touchButtons();
 
-async function touchUp(cdp: CDPSession): Promise<void> {
-  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
-}
+      await gamePage.touchDown([centre(buttons.right)]);
+      await expect.poll(async () => (await gamePage.state()).snapshot).toEqual({ left: false, right: true, jumpHeld: false });
+      await gamePage.touchUp();
+      await expect.poll(async () => (await gamePage.state()).snapshot.right).toBe(false);
 
-/** Taps every gold button on the way in: PLAY on the title, then START on the map. */
-async function tapIntoLevelOne(page: Page): Promise<void> {
-  await page.waitForFunction(() => document.documentElement.dataset['scene'] === 'Title')
-  const canvas = await canvasOrigin(page)
-  // PLAY sits at the vertical middle of the title screen.
-  await page.touchscreen.tap(canvas.x + canvas.w / 2, canvas.y + canvas.h * 0.45)
-  await page.waitForFunction(() => document.documentElement.dataset['scene'] === 'WorldMap')
+      await gamePage.touchDown([centre(buttons.left)]);
+      await expect.poll(async () => (await gamePage.state()).snapshot).toEqual({ left: true, right: false, jumpHeld: false });
+      await gamePage.touchUp();
+      await expect.poll(async () => (await gamePage.state()).snapshot.left).toBe(false);
+    },
+  );
 
-  const start = await buttonCentre(page, 'WorldMap')
-  await page.touchscreen.tap(canvas.x + start.x, canvas.y + start.y)
-  await page.waitForFunction(() => document.documentElement.dataset['scene'] === 'Game')
-}
+  test("chạm nút nhảy thì nhân vật nhảy lên", { tag: ["@TC-TOUCH-004", "@dev-build"] }, async ({ gamePage, page }) => {
+    await gamePage.goto();
+    await gamePage.tapIntoLevelOne();
+    const canvas = (await gamePage.canvas.boundingBox())!;
+    await page.touchscreen.tap(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
+    await expect.poll(async () => (await gamePage.state()).touchVisible).toBe(true);
+    await gamePage.waitUntilGrounded();
+    const ground = (await gamePage.state()).y;
+    const jump = centre((await gamePage.touchButtons()).jump);
 
-/**
- * Centre of the LAST interactive rectangle in a scene, in CANVAS coordinates.
- * On the world map that is the START button; asking the running game beats
- * hard-coding a pixel that moves with the integer zoom.
- */
-async function buttonCentre(page: Page, sceneKey: string): Promise<{ x: number; y: number }> {
-  return page.evaluate((key) => {
-    const game = (window as unknown as { duckstomp: Handle }).duckstomp
-    const scene = game.scene.getScene(key) as {
-      children: { list: unknown[] }
-    }
-    const found: { x: number; y: number }[] = []
-    const walk = (object: unknown): void => {
-      const node = object as { list?: unknown[]; input?: unknown; type?: string; getBounds?: () => DOMRect }
-      if (Array.isArray(node.list)) {
-        node.list.forEach(walk)
-        return
+    // A jump is an edge on a grounded frame; a loaded machine can miss one, so up to three separate presses.
+    let highest = ground;
+    for (let attempt = 0; attempt < 3 && highest >= ground - 8; attempt += 1) {
+      await gamePage.touchDown([jump]);
+      const until = Date.now() + 2_000;
+      while (Date.now() < until && highest >= ground - 8) {
+        highest = Math.min(highest, (await gamePage.state()).y);
+        await gamePage.frames(2);
       }
-      if (node.input !== undefined && node.input !== null && node.type === 'Rectangle' && node.getBounds) {
-        const bounds = node.getBounds()
-        found.push({ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 })
-      }
+      await gamePage.touchUp();
+      await gamePage.waitUntilGrounded();
     }
-    scene.children.list.forEach(walk)
-    const last = found[found.length - 1]
-    if (last === undefined) throw new Error(`no interactive rectangle in ${key}`)
-    return last
-  }, sceneKey)
-}
+    expect(highest).toBeLessThan(ground - 8);
+  });
 
-test.describe('cụm nút cảm ứng', () => {
-  test('hiện sau cú chạm đầu tiên trong màn chơi, và giữ được hướng', async ({ browser }) => {
-    const context = await browser.newContext({ viewport: SIZE, hasTouch: true })
-    const page = await context.newPage()
-    const cdp = await context.newCDPSession(page)
-    await page.goto('/')
-    await tapIntoLevelOne(page)
-
-    // FR-15: hidden until a touch arrives. Nothing has touched the play area yet.
-    const before = await inputState(page)
-    expect(before.showTouch).toBe(false)
-    expect(before.touchVisible).toBe(false)
-
-    // One tap anywhere in the play area is what a phone player actually does.
-    const canvas = await canvasOrigin(page)
-    await page.touchscreen.tap(canvas.x + canvas.w / 2, canvas.y + canvas.h * 0.5)
-    await expect.poll(async () => (await inputState(page)).showTouch).toBe(true)
-    expect((await inputState(page)).touchVisible).toBe(true)
-
-    // NFR-A11Y-06: the controls have to WORK by touch, not merely appear. Hold the
-    // right-hand direction pad and the input snapshot must say so.
-    const dirSize = 72
-    const margin = 16
-    const right = {
-      x: canvas.x + margin + dirSize + 12 + dirSize / 2,
-      y: canvas.y + canvas.h - margin - dirSize / 2,
-    }
-    await touchDown(cdp, right.x, right.y)
-    await expect.poll(async () => (await inputState(page)).snapshot.right).toBe(true)
-    await touchUp(cdp)
-    await expect.poll(async () => (await inputState(page)).snapshot.right).toBe(false)
-
-    await context.close()
-  })
-
-  test('ẩn lại sau khi người chơi bấm phím', async ({ browser }) => {
-    const context = await browser.newContext({ viewport: SIZE, hasTouch: true })
-    const page = await context.newPage()
-    await page.goto('/')
-    await tapIntoLevelOne(page)
-
-    const canvas = await canvasOrigin(page)
-    await page.touchscreen.tap(canvas.x + canvas.w / 2, canvas.y + canvas.h * 0.5)
-    await expect.poll(async () => (await inputState(page)).showTouch).toBe(true)
+  test("bấm phím thì cụm nút cảm ứng ẩn lại", { tag: ["@TC-TOUCH-005", "@dev-build"] }, async ({ gamePage, page }) => {
+    await gamePage.goto();
+    await gamePage.tapIntoLevelOne();
+    const canvas = (await gamePage.canvas.boundingBox())!;
+    await page.touchscreen.tap(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
+    await expect.poll(async () => (await gamePage.state()).showTouch).toBe(true);
 
     // A keyboard player must not be left with buttons painted over the level.
-    await page.keyboard.down('ArrowRight')
-    await page.waitForTimeout(120)
-    await page.keyboard.up('ArrowRight')
-    await expect.poll(async () => (await inputState(page)).showTouch).toBe(false)
-    await expect.poll(async () => (await inputState(page)).touchVisible).toBe(false)
+    await gamePage.press("ArrowRight");
+    await expect.poll(async () => (await gamePage.state()).showTouch).toBe(false);
+    await expect.poll(async () => (await gamePage.state()).touchVisible).toBe(false);
+  });
 
-    await context.close()
-  })
-})
+  test(
+    "nút hướng ≥ 72 px ở góc trái dưới, nút nhảy ≥ 88 px ở góc phải dưới",
+    { tag: ["@TC-TOUCH-006", "@dev-build"] },
+    async ({ gamePage, page }) => {
+      await gamePage.goto();
+      await gamePage.tapIntoLevelOne();
+      const canvas = (await gamePage.canvas.boundingBox())!;
+      await page.touchscreen.tap(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
+      await expect.poll(async () => (await gamePage.state()).touchVisible).toBe(true);
+      const { left, right, jump } = await gamePage.touchButtons();
+      const midX = canvas.x + canvas.width / 2;
+      const midY = canvas.y + canvas.height / 2;
 
-test.describe('node bị khoá trên bản đồ', () => {
-  test('chọn được để xem trước, nhưng START vô hiệu và không đưa đi đâu', async ({ browser }) => {
-    const context = await browser.newContext({ viewport: SIZE, hasTouch: true })
-    const page = await context.newPage()
-    await page.goto('/')
-    await page.waitForFunction(() => document.documentElement.dataset['scene'] === 'Title')
-    const canvas = await canvasOrigin(page)
-    await page.touchscreen.tap(canvas.x + canvas.w / 2, canvas.y + canvas.h * 0.45)
-    await page.waitForFunction(() => document.documentElement.dataset['scene'] === 'WorldMap')
+      for (const [name, b] of [["left", left], ["right", right]] as const) {
+        expect(b.width, `${name} width`).toBeGreaterThanOrEqual(72);
+        expect(b.height, `${name} height`).toBeGreaterThanOrEqual(72);
+        expect(b.x + b.width, `${name} sits in the left half`).toBeLessThanOrEqual(midX);
+        expect(b.y, `${name} sits in the bottom half`).toBeGreaterThanOrEqual(midY);
+      }
+      expect(jump.width).toBeGreaterThanOrEqual(88);
+      expect(jump.height).toBeGreaterThanOrEqual(88);
+      expect(jump.width).toBeGreaterThan(left.width);
+      expect(jump.x).toBeGreaterThanOrEqual(midX);
+      expect(jump.y).toBeGreaterThanOrEqual(midY);
+    },
+  );
 
-    // Node 2 is locked on a fresh save. Selecting it is allowed — previewing the
-    // next level is the point — so the card has to say the level is locked.
-    const nodes = await page.evaluate(() => {
-      const game = (window as unknown as { duckstomp: Handle }).duckstomp
-      const scene = game.scene.getScene('WorldMap') as { children: { list: { type: string; x: number; y: number; input?: unknown }[] } }
-      return scene.children.list
-        .filter((o) => o.type === 'Arc' && o.input !== undefined && o.input !== null)
-        .map((o) => ({ x: o.x, y: o.y }))
-    })
-    const second = nodes[1]
-    expect(second).toBeDefined()
-    await page.touchscreen.tap(canvas.x + second!.x, canvas.y + second!.y)
+  test(
+    "giữ hai nút hướng cùng lúc rồi nhấc cả hai thì không hướng nào kẹt",
+    { tag: ["@TC-TOUCH-007", "@dev-build"] },
+    async ({ gamePage, page }) => {
+      await gamePage.goto();
+      await gamePage.tapIntoLevelOne();
+      const canvas = (await gamePage.canvas.boundingBox())!;
+      await page.touchscreen.tap(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2);
+      await expect.poll(async () => (await gamePage.state()).touchVisible).toBe(true);
+      const { left, right } = await gamePage.touchButtons();
 
-    await expect
-      .poll(async () =>
-        page.evaluate(() => {
-          const game = (window as unknown as { duckstomp: Handle }).duckstomp
-          const scene = game.scene.getScene('WorldMap') as { children: { list: { type: string; text?: string }[] } }
-          return scene.children.list.filter((o) => o.type === 'Text').map((o) => o.text ?? '')
-        }),
-      )
-      .toContain('LOCKED')
+      await gamePage.touchDown([centre(left), centre(right)]);
+      await gamePage.frames(10);
+      await gamePage.touchUp();
+      await expect.poll(async () => (await gamePage.state()).snapshot).toEqual({ left: false, right: false, jumpHeld: false });
+    },
+  );
+});
 
-    // Tapping START must stay put rather than doing nothing in silence.
-    const start = await buttonCentre(page, 'WorldMap')
-    await page.touchscreen.tap(canvas.x + start.x, canvas.y + start.y)
-    await page.waitForTimeout(600)
-    expect(await page.evaluate(() => document.documentElement.dataset['scene'])).toBe('WorldMap')
+test.describe("menus by touch", () => {
+  test(
+    "chạm node khoá thì xem trước được, chạm START không đưa đi đâu",
+    { tag: ["@TC-TOUCH-008", "@dev-build"] },
+    async ({ gamePage, page }) => {
+      await gamePage.goto();
+      await gamePage.clickText(SCENE.title, copy.play, { touch: true });
+      await gamePage.waitForScene(SCENE.worldMap);
 
-    await context.close()
-  })
-})
+      // Node 2 is locked on a fresh save. Selecting it is allowed — previewing the next level is the point (ADR-0011).
+      const node2 = (await gamePage.mapNodes())[1]!;
+      await page.touchscreen.tap(node2.x, node2.y);
+      await expect.poll(() => gamePage.selectedNode()).toBe("2");
+      expect((await gamePage.mapCard()).best).toBe(copy.locked);
+
+      await gamePage.clickText(SCENE.worldMap, copy.start, { touch: true });
+      await gamePage.frames(20);
+      expect(await gamePage.scene()).toBe(SCENE.worldMap);
+    },
+  );
+});

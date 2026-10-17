@@ -1,4 +1,4 @@
-import type { Locator, Page } from "@playwright/test";
+import type { CDPSession, Locator, Page } from "@playwright/test";
 import { BasePage } from "./base.page";
 import { SAVE_KEY, type SaveData } from "@/data/test-data";
 
@@ -501,6 +501,48 @@ export class GamePage extends BasePage {
       (n) => (window as any).duckstomp.scene.getScene("Game").coinsCollected > n,
       before,
     );
+  }
+
+  private cdp: CDPSession | undefined;
+
+  /**
+   * Puts fingers down and keeps them there. Playwright's touchscreen can only tap; a held thumb is the whole point of
+   * on-screen controls, so the hold goes through CDP. Needs a context with `hasTouch`.
+   */
+  async touchDown(points: Array<{ x: number; y: number }>): Promise<void> {
+    this.cdp ??= await this.page.context().newCDPSession(this.page);
+    await this.cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: points });
+  }
+
+  /** Lifts every finger. */
+  async touchUp(): Promise<void> {
+    this.cdp ??= await this.page.context().newCDPSession(this.page);
+    await this.cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  }
+
+  /** Title → tap PLAY → tap START: level 1 running, by touch only. @dev-build */
+  async tapIntoLevelOne(): Promise<void> {
+    await this.clickText(SCENE.title, "PLAY", { touch: true });
+    await this.waitForScene(SCENE.worldMap);
+    await this.clickText(SCENE.worldMap, "START", { touch: true });
+    await this.waitForScene(SCENE.game);
+    await this.waitForActive(SCENE.hud);
+  }
+
+  /** Page-coordinate boxes of the three on-screen controls (left, right, jump), drawn or not. @dev-build */
+  async touchButtons(): Promise<{ left: Box; right: Box; jump: Box }> {
+    return this.page.evaluate(() => {
+      const hud = (window as any).duckstomp.scene.getScene("Hud");
+      const rect = document.querySelector("#app canvas")!.getBoundingClientRect();
+      const containers = hud.children.list.filter((o: any) => o.type === "Container" && !o.name);
+      const group = containers[containers.length - 1];
+      const faces = group.list.filter((o: any) => o.type === "Rectangle");
+      const box = (o: any) => {
+        const b = o.getBounds();
+        return { x: rect.x + b.x, y: rect.y + b.y, width: b.width, height: b.height };
+      };
+      return { left: box(faces[0]), right: box(faces[1]), jump: box(faces[2]) };
+    });
   }
 
   /** The HUD as drawn: hearts (full count), coin label, clock. @dev-build */
