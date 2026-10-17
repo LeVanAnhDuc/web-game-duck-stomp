@@ -59,7 +59,10 @@ real device and guessing wrong hurts somebody either way.
 
 ## Commands
 
+The game app lives in `client/`; run these from there.
+
 ```bash
+cd client
 pnpm install --frozen-lockfile
 pnpm dev
 ```
@@ -68,50 +71,61 @@ Only `VITE_BASE_PATH` is needed, and there is no backend, datastore or API key. 
 optional Ducker ID sign-in is off unless `VITE_FEATURE_DUCKER_SIGN_IN=true` **and**
 `VITE_DUCKER_ISSUER`, `VITE_DUCKER_CLIENT_ID`, `VITE_DUCKER_SCOPE` and
 `VITE_DUCKER_PROFILE_PATH` are all set; none of them has a default, and the deploy
-workflow deliberately passes none of them. To try it locally, `cp .env.example .env`,
+workflow deliberately passes none of them. To try it locally, `cp client/.env.example client/.env`,
 fill in the client id registered in Ducker ID, add the dev origin
 (`http://localhost:5173`) to Ducker ID's `CORS_ORIGINS`, and run `pnpm dev`. See
-[`.env.example`](.env.example).
+[`client/.env.example`](client/.env.example).
 
 | Command | What it does |
 | --- | --- |
 | `pnpm dev` | Vite dev server |
 | `pnpm build` | Type-check, then build to `dist/` |
 | `pnpm test` | Unit tests for `src/core/` (Vitest) |
-| `pnpm test:e2e` | Browser smoke test at three viewports (Playwright) |
 | `pnpm lint:core` | Enforces the `src/core/` purity boundary |
 | `pnpm check:bundle` | Fails if the gzipped script payload exceeds its budget |
 | `pnpm levels` | Regenerates the level files from their ASCII maps |
-| `pnpm verify` | Boundary, tests, build and end-to-end, in order |
+| `pnpm verify` | Boundary, unit tests and build, in order |
+
+The end-to-end regression suite is its own package in `automation-testing/` (Playwright).
+It starts the game's Vite dev server itself (plus a second one with Ducker ID sign-in
+switched on against a fake issuer) and runs every feature against it:
+
+```bash
+cd automation-testing
+pnpm install && pnpm exec playwright install chromium
+pnpm test             # every module: title, map, play, HUD, pause, save, touch, sign-in…
+pnpm coverage:check   # requirement ↔ test case ↔ spec ↔ bug traceability
+```
 
 ## How it is put together
 
 ```
-src/core/     Pure TypeScript. Does not import Phaser, does not read the clock.
-              Movement, integer scaling, scoring, unlock rules, save, strings.
-src/game/     The Phaser layer: scenes, entities, input, audio, generated art.
-assets/levels/ Six Tiled JSON files. Levels are data, not code.
-docs/         Why any of this is the way it is.
+client/src/core/      Pure TypeScript. Does not import Phaser, does not read the clock.
+                      Movement, integer scaling, scoring, unlock rules, save, strings.
+client/src/game/      The Phaser layer: scenes, entities, input, audio, generated art.
+client/assets/levels/ Six Tiled JSON files. Levels are data, not code.
+docs/                 Why any of this is the way it is.
 ```
 
-Phaser 3.90 with Arcade Physics, TypeScript, Vite, Vitest and Playwright.
+Phaser 3.90 with Arcade Physics, TypeScript, Vite and Vitest; the Playwright regression
+suite lives next to the app in `automation-testing/`.
 
 The boundary is the load-bearing part. Game feel is the thing most likely to
 regress and the most expensive thing to re-check by hand, so the movement state
 machine is a pure function of `(state, input, deltaTime, onGround)` and is covered
 by unit tests that run in milliseconds without a browser. `pnpm lint:core`
-fails the build if anything in `src/core/` imports Phaser, reads the wall clock, or
+fails the build if anything in `client/src/core/` imports Phaser, reads the wall clock, or
 calls `Math.random`.
 
 Two more consequences of that split are worth knowing before changing anything.
-Gravity belongs to `src/core/movement.ts`, not to Arcade Physics, which is why the
+Gravity belongs to `client/src/core/movement.ts`, not to Arcade Physics, which is why the
 whole vertical story — jump, early-release cut, terminal velocity — is testable.
 And gameplay only ever *emits* domain events: no collision callback touches the
 HUD, plays a sound, or writes a save. That is what lets the HUD be a separate
 scene at a different camera zoom without either knowing about the other.
 
-Adding a level does not touch code: drop a Tiled file in `assets/levels/` and add
-a node to the map. `scripts/make-level.mjs` authors the six levels as ASCII maps
+Adding a level does not touch code: drop a Tiled file in `client/assets/levels/` and add
+a node to the map. `client/scripts/make-level.mjs` authors the six levels as ASCII maps
 and refuses to emit one whose pit is wider than the jump arc.
 
 ## Art
@@ -120,7 +134,7 @@ All sprites are generated in code as placeholders. The intended art is the CC0
 [Pixel Adventure](https://pixelfrog-assets.itch.io/pixel-adventure-1) pack by
 Pixel Frog; itch.io serves it through a browser flow rather than a URL, so it is
 not wired up yet. Every texture sits behind one module, so swapping it in is a
-change to `src/game/textures.ts` and nothing else. See ADR-0006.
+change to `client/src/game/textures.ts` and nothing else. See ADR-0006.
 
 ## Releases and versioning
 
@@ -128,14 +142,15 @@ Three workflows, all in `.github/workflows/`:
 
 | Workflow | When | What it does |
 | --- | --- | --- |
-| `ci.yml` | every pull request and push to `main` | Core purity boundary, level reproducibility, type-check, unit tests, dependency review, bundle budget, end-to-end smoke tests |
+| `ci.yml` | every pull request and push to `main` | Core purity boundary, level reproducibility, type-check, unit tests, dependency review, bundle budget, and the `automation-testing/` regression suite (typecheck, traceability check, every module) |
 | `deploy.yml` | push to `main` | Builds and publishes to GitHub Pages. Re-runs the unit tests rather than trusting a CI run it cannot see |
 | `release.yml` | push to `main` | Derives the next version and composes the release notes from the commits since the last tag |
 
 Versions come from Conventional Commit subjects, not from a hand-edited file. A
 `feat:` since the last tag bumps the minor, a `!` or `BREAKING CHANGE` bumps the
 major, anything else is a patch. Both steps are scripts in the repo so they can be
-exercised on a laptop rather than only by pushing:
+exercised on a laptop rather than only by pushing (from `client/`; they read the whole
+repo's history):
 
 ```bash
 pnpm release:next            # prints the tag the next release would carry, and why

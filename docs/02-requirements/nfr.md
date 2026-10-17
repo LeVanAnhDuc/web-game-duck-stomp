@@ -60,7 +60,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 | NFR-A11Y-03 | Vùng bấm ≥ 44×44px; nút hướng ≥ 72px, nút nhảy ≥ 88px | đo trên máy thật |
 | ~~NFR-A11Y-04~~ | ~~Mọi input có label liên kết~~ → **thay bằng**: mọi nút chỉ có icon phải có `aria-label`; game không có ô nhập text nào | grep `aria-label` trên mọi nút icon |
 | NFR-A11Y-05 | Tôn trọng `prefers-reduced-motion`: animation vẽ đường bản đồ bị tắt, vẽ ngay trạng thái cuối | thử tay với flag bật |
-| NFR-A11Y-06 | Game chơi được hết chỉ bằng bàn phím, và chơi được hết chỉ bằng cảm ứng. ⚠️ **Nửa cảm ứng từng SAI trên thực tế** tới 12.09.2026 (ADR-0010): nút cảm ứng không bao giờ hiện được. ⚠️ Và có một nhóm mà **cả hai** đường đều không tới được: ai không giữ được hai phím cùng lúc thì không qua hố đầu màn 1 — đo được, ADR-0012 | `tests/touch-and-locked.spec.ts` chạy trong context `hasTouch: true` (nửa cảm ứng, tự động) + đi hết màn 1 bằng bàn phím |
+| NFR-A11Y-06 | Game chơi được hết chỉ bằng bàn phím, và chơi được hết chỉ bằng cảm ứng. ⚠️ **Nửa cảm ứng từng SAI trên thực tế** tới 12.09.2026 (ADR-0010): nút cảm ứng không bao giờ hiện được. ⚠️ Và có một nhóm mà **cả hai** đường đều không tới được: ai không giữ được hai phím cùng lúc thì không qua hố đầu màn 1 — đo được, ADR-0012 | `automation-testing/src/tests/e2e/touch/` chạy trong project `app-touch` (`hasTouch: true`) (nửa cảm ứng, tự động) + đi hết màn 1 bằng bàn phím |
 
 ## i18n
 
@@ -85,7 +85,7 @@ phần lớn ngưỡng mặc định của scaffold nói về endpoint, truy v�
 
 | ID | Ngưỡng | Cách kiểm |
 | --- | --- | --- |
-| NFR-DATA-01 | **Dự án không thu thập và không lưu bất kỳ PII nào.** Không analytics, không cookie, không định danh máy. **Ngoại lệ có giới hạn (ADR-0013):** khi người chơi tự bấm đăng nhập Ducker ID, tên/email/ảnh của họ được đọc từ Ducker ID, **chỉ giữ trong bộ nhớ của tab** và mất khi tải lại. Storage duy nhất mà tính năng chạm vào là `sessionStorage` khoá `ducker.pkce`, xoá ngay khi người chơi quay về. Mạng chỉ tới issuer đã cấu hình, và tới URL ảnh đại diện mà issuer trả về (có thể ở host khác; không giới hạn ảnh), chỉ sau khi người chơi bấm đăng nhập và đăng nhập xong; cờ tắt thì không có gì | bảng dưới + review mọi lệnh ghi storage + e2e `ducker-id-sign-in-off.spec.ts` |
+| NFR-DATA-01 | **Dự án không thu thập và không lưu bất kỳ PII nào.** Không analytics, không cookie, không định danh máy. **Ngoại lệ có giới hạn (ADR-0013):** khi người chơi tự bấm đăng nhập Ducker ID, tên/email/ảnh của họ được đọc từ Ducker ID, **chỉ giữ trong bộ nhớ của tab** và mất khi tải lại. Storage duy nhất mà tính năng chạm vào là `sessionStorage` khoá `ducker.pkce`, xoá ngay khi người chơi quay về. Mạng chỉ tới issuer đã cấu hình, và tới URL ảnh đại diện mà issuer trả về (có thể ở host khác; không giới hạn ảnh), chỉ sau khi người chơi bấm đăng nhập và đăng nhập xong; cờ tắt thì không có gì | bảng dưới + review mọi lệnh ghi storage + e2e `automation-testing/src/tests/e2e/ducker-id/flag-off.e2e.ts` |
 | ~~NFR-DATA-02~~ | ~~Xoá tài khoản thì xoá PII~~ **(bỏ)** — không có tài khoản. Người chơi xoá dữ liệu bằng cách xoá site data của trình duyệt | — |
 | NFR-DATA-03 | Có đường migrate save khi cấu trúc đổi, và đường đó **đã chạy thật một lần** trong test | unit test migrate từ mọi version cũ lên version hiện tại |
 
