@@ -24,7 +24,8 @@
   địch của màn 4 được gỡ khỏi màn trước khi bắt đầu (`GamePage.removeEnemies`): con `walker` đi tuần dần về phía điểm
   xuất phát và từng đâm vào nhân vật vừa hồi sinh ở vài lần chạy, làm kết quả phụ thuộc tốc độ máy thay vì hành vi đang kiểm.
 - **Q3** Dạng mạnh (REQ-HEALTH-06) được dựng bằng `player.setPowered(true)` qua `window.duckstomp` — gieo trạng thái
-  như gieo save; lấy nấm thật cần đội khối "?" (vật lý, xem `level-play` Q1).
+  như gieo save, để case chỉ nói về thứ tự sát thương trên gai. Cùng luật đó với nấm lấy thật trong màn (đội khối "!",
+  ăn nấm, trúng sườn walker) là TC-POWERUP-002.
 - **Q4** "Dưới một giây" (README, US-04) được kiểm là: sau cú chết, nhân vật đã ở điểm hồi sinh với 3 tim trong vòng
   1 000 ms thời gian thực, và scene vẫn là Game (không có scene nào chen vào).
 - **Q5** "Chết ngay tại checkpoint → không hồi sinh vào thứ vừa giết mình" và "chết đúng lúc chạm cờ đích" (US-04) — vị
@@ -37,7 +38,7 @@ Không có tài khoản. Màn 4 và 6 mở bằng save gieo sẵn.
 
 ## Ngoài phạm vi
 
-- Đạp đầu địch (`walker`, `flyer`) và `spiker` không đạp được (FR-08) — vật lý (hướng rơi + vận tốc).
+- Đạp đầu địch (`walker`, `flyer`), `spiker` không đạp được và chạm địch từ cạnh bên (FR-08) — module `enemies`.
 
 ## Tech debt liên quan
 

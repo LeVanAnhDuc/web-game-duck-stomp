@@ -14,15 +14,20 @@
 
 ## Quyết định chốt (Chốt bởi agent — user uỷ quyền)
 
-- **Q1** Cảm giác điều khiển (tăng tốc, nhảy cao-thấp theo lực giữ, coyote time, jump buffer, phá tường khi đủ đà) là
-  vật lý theo khung hình: đã được unit test thuần ở `client/src/core/movement.test.ts`, và design.md §9 cố ý không
-  e2e nó. Ở đây chỉ kiểm **hướng** (phải / trái / lên) — điều không phụ thuộc thời gian khung hình.
+- **Q1** Đi tới một chỗ (qua hố, lên bệ) là vật lý theo khung hình và không e2e: test đặt nhân vật tới chỗ cần. Hướng
+  (phải / trái / lên) được kiểm bằng phím thật. Cảm giác điều khiển (nhảy theo lực giữ, jump buffer, coyote time) có cả
+  unit test ở `client/src/core/movement.test.ts` lẫn e2e ở đây (Q5) — README §Features hứa nó với người chơi.
 - **Q2** "Ăn xu" được dựng bằng cách đặt nhân vật lên đồng xu (`GamePage.teleport`): chạm vào là hành vi của game;
   đi tới đó là vật lý (Q1).
 - **Q3** Tổng xu N lấy từ **file màn site phục vụ**, đếm như design.md §4 (thường + giấu + khối "?" cho xu) — không
   đọc từ code game, để test không đồng ý với code "theo cấu trúc".
-- **Q4** Khối "?" (FR-10), nấm và khối nứt (FR-07), địch (FR-08), bệ di động (FR-09) cần đội / đạp / đâm đúng hướng
-  với đúng vận tốc → ngoài phạm vi e2e (Q1). Hệ quả gameplay của chúng (mất tim, hồi sinh) nằm ở module `health`.
+- **Q4** Khối "?" (FR-10), nấm và khối nứt (FR-07), địch (FR-08) có module riêng: `question-blocks`, `power-up`,
+  `enemies`. Bệ di động (FR-09) chở người chơi — vật lý, ngoài phạm vi.
+- **Q5** Jump buffer (110 ms) và coyote time (90 ms) nhỏ hơn độ trễ của một phím gửi từ tiến trình test, nên cú bấm
+  được làm từ bên trong vòng lặp game, trên đồng hồ game (`GamePage.bufferedJump`, `GamePage.coyoteJump`, cùng kiểu
+  `jumpRise` cho lực giữ), qua cửa nhập của nút cảm ứng `InputManager.setTouch` — cùng một `InputSnapshot` mà phím đi
+  qua. Phím thật đã được TC-LEVELPLAY-004/005 chứng minh. Mỗi case kiểm cả hai phía của cửa sổ thời gian (trong / ngoài)
+  và ghi lại thời điểm đo được, để kết quả không đúng "nhờ may".
 
 ## Tài khoản test
 
@@ -30,9 +35,10 @@ Không có tài khoản. Màn 2–6 mở bằng save gieo sẵn (`allCleared`).
 
 ## Ngoài phạm vi
 
-- FR-07, FR-08, FR-10 theo Q4. Bệ di động chở người chơi — vật lý.
+- Bệ di động chở người chơi (FR-09) — vật lý (Q4).
 - NFR-PERF-05/06/09 (60 fps, không cấp phát mỗi frame, bước physics ≤ 50 ms) — đo bằng DevTools, không phải e2e.
 
 ## Tech debt liên quan
 
-- FR-07 / FR-08 / FR-10 không có e2e; chỉ unit test phần thuần.
+_(không có)_ — FR-07 / FR-08 / FR-10 có e2e ở `power-up`, `enemies`, `question-blocks`. Ở mức unit, `client/src` chỉ có
+`tuning.test.ts` chạm tới cú đạp (bật nhỏ hơn cú nhảy); địch, nấm, khối nứt, khối "?" không có unit test nào.

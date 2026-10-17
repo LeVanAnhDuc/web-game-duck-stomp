@@ -51,3 +51,35 @@ Project `app` (667×375). Mọi case đọc trạng thái màn qua `window.ducks
 - **Bước:** vào màn 1 → đặt nhân vật lên đồng xu đầu tiên → đặt ra chỗ khác → đặt lại lên cùng chỗ
 - **Mong đợi:** HUD "1/N" sau lần chạm đầu và vẫn "1/N" sau lần thứ hai
 - **Automated:** `tests/e2e/level-play/hud.e2e.ts`
+
+### TC-LEVELPLAY-007 — giữ nút nhảy lâu thì nhảy cao hơn nhấn nhả nhanh
+
+- **Requirement:** REQ-LEVELPLAY-07
+- **Layer:** e2e · **Priority:** P1 · **Tags:** @dev-build · **Lăng kính:** 3
+- **Bước:** vào màn 1, đứng yên → nhảy, giữ nút đúng 2 bước game → đứng lại → nhảy, giữ 60 bước
+- **Mong đợi:** cú giữ lên > 40 px; cú nhấn nhả lên > 0 và < 70% cú giữ
+- **Automated:** `tests/e2e/level-play/movement-feel.e2e.ts`
+
+### TC-LEVELPLAY-008 — bấm nhảy ngay trước khi chạm đất thì vẫn nhảy lúc chạm đất
+
+- **Requirement:** REQ-LEVELPLAY-08
+- **Layer:** e2e · **Priority:** P1 · **Tags:** @dev-build · **Lăng kính:** 3
+- **Bước:** vào màn 1 → thả nhân vật từ 64 px; bấm và giữ nhảy khi còn cách đất 10 px → đứng lại → thả lại, bấm khi còn cách đất 56 px
+- **Mong đợi:** lần 1: bấm → chạm đất < 110 ms (đồng hồ game) và nhân vật bật lên ngay khi chạm đất; lần 2: bấm → chạm đất ≥ 110 ms và không bật lên
+- **Automated:** `tests/e2e/level-play/movement-feel.e2e.ts`
+
+### TC-LEVELPLAY-009 — vừa chạy khỏi mép vực vẫn nhảy được trong chốc lát
+
+- **Requirement:** REQ-LEVELPLAY-09
+- **Layer:** e2e · **Priority:** P1 · **Tags:** @dev-build · **Lăng kính:** 3
+- **Bước:** vào màn 1 → chạy sang phải khỏi mép đất trước vực đầu tiên → bấm nhảy ≥ 30 ms sau bước cuối còn chạm đất
+- **Mong đợi:** lúc bấm < 90 ms sau bước cuối còn chạm đất; nhân vật bật lên
+- **Automated:** `tests/e2e/level-play/movement-feel.e2e.ts`
+
+### TC-LEVELPLAY-010 — chạy khỏi mép quá lâu rồi mới bấm thì không nhảy giữa không trung
+
+- **Requirement:** REQ-LEVELPLAY-10
+- **Layer:** e2e · **Priority:** P1 · **Tags:** @dev-build · **Lăng kính:** 3
+- **Bước:** như TC-LEVELPLAY-009 nhưng bấm ≥ 160 ms sau bước cuối còn chạm đất
+- **Mong đợi:** lúc bấm ≥ 90 ms sau đó; nhân vật không bật lên
+- **Automated:** `tests/e2e/level-play/movement-feel.e2e.ts`
