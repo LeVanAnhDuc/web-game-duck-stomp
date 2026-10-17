@@ -120,6 +120,43 @@ export class GamePage extends BasePage {
     return problems;
   }
 
+  /**
+   * Wraps the Web Audio API before the page runs, so sound can be proven without speakers: how many contexts were
+   * created and resumed, and how many oscillators were started. Read back with `audio()`. Call before goto().
+   */
+  async probeAudio(): Promise<void> {
+    await this.page.addInitScript(() => {
+      const probe = { contexts: 0, resumed: 0, started: 0 };
+      (window as any).__audioProbe = probe;
+      const Original = window.AudioContext;
+      if (Original === undefined) return;
+      class Probed extends Original {
+        constructor(options?: AudioContextOptions) {
+          super(options);
+          probe.contexts += 1;
+        }
+        override resume(): Promise<void> {
+          probe.resumed += 1;
+          return super.resume();
+        }
+        override createOscillator(): OscillatorNode {
+          const osc = super.createOscillator();
+          const start = osc.start.bind(osc);
+          osc.start = (when?: number) => {
+            probe.started += 1;
+            start(when);
+          };
+          return osc;
+        }
+      }
+      (window as any).AudioContext = Probed;
+    });
+  }
+
+  async audio(): Promise<{ contexts: number; resumed: number; started: number }> {
+    return this.page.evaluate(() => ({ ...(window as any).__audioProbe }));
+  }
+
   async readSave(): Promise<SaveData | null> {
     const raw = await this.page.evaluate((key) => localStorage.getItem(key), SAVE_KEY);
     return raw === null ? null : (JSON.parse(raw) as SaveData);
