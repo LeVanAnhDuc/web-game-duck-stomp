@@ -367,7 +367,7 @@ export class GamePage extends BasePage {
   async waitUntilGrounded(): Promise<void> {
     let still = 0;
     let lastY = Number.NaN;
-    const until = Date.now() + 10_000;
+    const until = Date.now() + 20_000;
     while (still < 6) {
       if (Date.now() > until) throw new Error("player never settled on the ground");
       const { y } = await this.state();
@@ -375,6 +375,47 @@ export class GamePage extends BasePage {
       lastY = y;
       await this.frames(1);
     }
+  }
+
+  /**
+   * Starts recording the running level's domain events (playerHit, playerDied, playerRespawned, checkpointReached,
+   * levelCompleted…) with their payloads and the real time they fired. Read back with `events()`. @dev-build
+   */
+  async recordEvents(): Promise<void> {
+    await this.page.evaluate(() => {
+      const play = (window as any).duckstomp.scene.getScene("Game");
+      const log: Array<{ name: string; payload: unknown; at: number; gameTime: number }> = [];
+      (window as any).__e2eEvents = log;
+      const emit = play.events.emit.bind(play.events);
+      // GAME_EVENT names (client/src/game/events.ts) minus the per-frame timeTick. Phaser emits its own lifecycle
+      // events on the same emitter every frame; those are not recorded.
+      const names = new Set([
+        "coinCollected", "powerUpTaken", "playerHit", "powerUpLost", "blockBroken", "blockThudded", "blockBumped",
+        "enemyStomped", "checkpointReached", "playerDied", "playerRespawned", "levelCompleted",
+      ]);
+      play.events.emit = (name: string, payload: unknown, ...rest: unknown[]) => {
+        if (names.has(name)) {
+          const plain = JSON.parse(JSON.stringify(payload ?? null));
+          log.push({ name, payload: plain, at: performance.now(), gameTime: play.time.now });
+        }
+        return emit(name, payload, ...rest);
+      };
+    });
+  }
+
+  /** `at`: page real time; `gameTime`: the scene clock the game itself uses for invulnerability and cooldowns. */
+  async events(): Promise<Array<{ name: string; payload: any; at: number; gameTime: number }>> {
+    return this.page.evaluate(() => (window as any).__e2eEvents ?? []);
+  }
+
+  /** Real-time clock of the page, to measure how long the game took to do something. */
+  async now(): Promise<number> {
+    return this.page.evaluate(() => performance.now());
+  }
+
+  /** Seeds the powered form (as taking a mushroom would). @dev-build */
+  async setPowered(on: boolean): Promise<void> {
+    await this.page.evaluate((v) => (window as any).duckstomp.scene.getScene("Game").player.setPowered(v), on);
   }
 
   /** The HUD as drawn: hearts (full count), coin label, clock. @dev-build */

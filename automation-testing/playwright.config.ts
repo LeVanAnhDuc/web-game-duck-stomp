@@ -28,6 +28,9 @@ const SIGN_IN = /e2e\/ducker-id\/sign-in\.e2e\.ts$/;
 export default defineConfig({
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : [["list"], ["html", { open: "never" }]],
   fullyParallel: true,
+  // Every test runs a whole Phaser game on a software GL stack; past a few at once the machine, not the game, is what
+  // the suite measures. 4 locally, 2 on the 4-core CI runner.
+  workers: process.env.CI ? 2 : 4,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   // Phaser bakes every texture at boot through a software GL stack; on a busy machine that alone eats seconds.
