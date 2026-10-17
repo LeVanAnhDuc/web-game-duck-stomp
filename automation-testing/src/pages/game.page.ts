@@ -92,6 +92,34 @@ export class GamePage extends BasePage {
     );
   }
 
+  /** Makes `window.localStorage` throw, the way private mode / blocked site data does. Call before goto(). */
+  async blockLocalStorage(): Promise<void> {
+    await this.page.addInitScript(() => {
+      Object.defineProperty(window, "localStorage", {
+        configurable: true,
+        get() {
+          throw new DOMException("The operation is insecure.", "SecurityError");
+        },
+      });
+    });
+  }
+
+  /**
+   * Starts collecting what the page reports as wrong: uncaught errors, console errors and warnings — minus the GPU
+   * driver's own chatter (`ignore`). Returns the live list.
+   */
+  collectProblems(ignore: RegExp): string[] {
+    const problems: string[] = [];
+    this.page.on("console", (message) => {
+      const type = message.type();
+      if (type !== "error" && type !== "warning") return;
+      if (ignore.test(message.text())) return;
+      problems.push(`${type}: ${message.text()}`);
+    });
+    this.page.on("pageerror", (error) => problems.push(`pageerror: ${error.message}`));
+    return problems;
+  }
+
   async readSave(): Promise<SaveData | null> {
     const raw = await this.page.evaluate((key) => localStorage.getItem(key), SAVE_KEY);
     return raw === null ? null : (JSON.parse(raw) as SaveData);
