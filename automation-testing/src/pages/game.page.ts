@@ -846,6 +846,23 @@ export class GamePage extends BasePage {
     );
   }
 
+  /**
+   * Decides how many Arcade physics steps the frame of the next death runs after the one that killed: 0 (a normal
+   * 60 fps frame) or 1 (a slow ~33 ms frame, which Arcade's fixed step catches up with a second step in the same frame).
+   * Set from the `playerDied` listener, which fires inside the first step's collider pass, through the world's step
+   * accumulator — the same field a long frame fills. Without it, how many steps the death frame gets depends on how busy
+   * the machine is. @dev-build
+   */
+  async setDeathFrameSteps(extra: 0 | 1): Promise<void> {
+    await this.page.evaluate((n) => {
+      const play = (window as any).duckstomp.scene.getScene("Game");
+      play.events.once("playerDied", () => {
+        const world = play.physics.world;
+        world._elapsed = n * world._frameTimeMS * world.timeScale;
+      });
+    }, extra);
+  }
+
   /** Puts the player on the goal flag and waits for the level-clear card. @dev-build */
   async reachGoal(): Promise<void> {
     const goal = (await this.levelObjects("goal"))[0];

@@ -50,6 +50,8 @@ test.describe("damage", () => {
       // Stand on the spikes until the third hit kills. Each hit starts INVULN_MS of game-time invulnerability and
       // knocks the player back, so the page re-places the player every frame until the death (GamePage.standOn).
       const hits = async () => (await gamePage.events()).filter((e) => e.name === "playerHit").length;
+      // A normal one-step frame for the death; the slow-frame variant is TC-HEALTH-007 (decisions Q6).
+      await gamePage.setDeathFrameSteps(0);
       await gamePage.standOn(spikes.x, spikes.y, 600);
       const dump = async () => JSON.stringify((await gamePage.events()).map((e) => [e.name, e.payload, Math.round(e.gameTime)]));
       expect(await hits(), await dump()).toBe(3);
@@ -73,6 +75,28 @@ test.describe("damage", () => {
       expect(await gamePage.scene()).toBe(SCENE.game);
       expect(await gamePage.isActive(SCENE.pause)).toBe(false);
       expect(await gamePage.isActive(SCENE.levelComplete)).toBe(false);
+    },
+  );
+
+  test(
+    "chết trên gai ở một khung hình chậm vẫn hồi sinh với đủ ba tim",
+    { tag: ["@TC-HEALTH-007", "@dev-build"] },
+    async ({ gamePage }) => {
+      // BUG: defects/health.md#bug-health-01
+      test.fail();
+      const spikes = (await gamePage.levelObjects("spikes"))[0]!;
+      // The death frame runs a second physics step, as a ~33 ms frame on a slow device does.
+      await gamePage.setDeathFrameSteps(1);
+      await gamePage.standOn(spikes.x, spikes.y, 600);
+      await gamePage.frames(10);
+
+      const events = await gamePage.events();
+      const respawnedAt = events.findIndex((e) => e.name === "playerRespawned");
+      expect(respawnedAt).toBeGreaterThan(-1);
+      expect(events[respawnedAt]!.payload).toEqual({ hearts: 3 });
+      // Nothing hurts at the spawn point: no hit after the respawn, and the player still has three hearts.
+      expect(events.slice(respawnedAt).filter((e) => e.name === "playerHit")).toEqual([]);
+      expect((await gamePage.state()).hearts).toBe(3);
     },
   );
 

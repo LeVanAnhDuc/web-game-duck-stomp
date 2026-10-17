@@ -32,6 +32,11 @@
   trí checkpoint màn 6 không có nguồn sát thương nào trùng; trường hợp cờ đích thuộc `level-complete` (đã xong màn thì
   không chết nữa, `finished`).
 
+- **Q6** Số bước physics của khung hình có cú chết được chốt bằng `GamePage.setDeathFrameSteps`: TC-HEALTH-002 dùng
+  khung một bước (60 fps), TC-HEALTH-007 dùng khung hai bước (khung ~33 ms, máy chậm). Arcade chạy bước bù trong cùng
+  khung mà không đồng bộ lại thân vật lý từ sprite, nên nếu để máy quyết định, TC-HEALTH-002 đỏ ngẫu nhiên trên CI
+  (BUG-HEALTH-01) — kết quả phụ thuộc tải máy thay vì hành vi. Hai case giữ cả hai phía, không phía nào bị bỏ.
+
 ## Tài khoản test
 
 Không có tài khoản. Màn 4 và 6 mở bằng save gieo sẵn.

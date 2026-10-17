@@ -45,6 +45,15 @@ Project `app` (667×375). Mọi case đọc tim / vị trí qua `window.duckstom
 - **Mong đợi:** hồi sinh ở toạ độ checkpoint, không ở điểm xuất phát
 - **Automated:** `tests/e2e/health/respawn.e2e.ts`
 
+### TC-HEALTH-007 — chết trên gai ở một khung hình chậm vẫn hồi sinh với đủ ba tim
+
+- **Requirement:** REQ-HEALTH-02
+- **Layer:** e2e · **Priority:** P1 · **Tags:** @dev-build · **Lăng kính:** 5
+- **Tiền điều kiện:** màn 4 đã mở; khung hình của cú chết chạy hai bước physics (như một khung ~33 ms trên máy chậm)
+- **Bước:** vào màn 4 → đứng trên gai tới khi chết → chờ 10 khung
+- **Mong đợi:** `playerRespawned` với 3 tim; không có `playerHit` nào sau đó; nhân vật vẫn 3 tim
+- **Automated:** `tests/e2e/health/damage.e2e.ts`
+
 ### TC-HEALTH-006 — dạng mạnh trúng đòn mất nấm, tim không đổi
 
 - **Requirement:** REQ-HEALTH-06
