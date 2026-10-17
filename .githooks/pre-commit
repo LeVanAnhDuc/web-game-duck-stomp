@@ -6,30 +6,35 @@
 #     git config core.hooksPath .githooks
 #
 # Vi sao khong phai ESLint (R-22): repo nay khong co ESLint, va cung khong can — thu
-# gac kien truc o day la `scripts/check-core-boundary.mjs`, no bat dung hai bat bien
-# ma khong type checker nao bat (core/ import Phaser, va doc dong ho tuong).
+# gac kien truc o day la `client/scripts/check-core-boundary.mjs`, no bat dung hai bat
+# bien ma khong type checker nao bat (core/ import Phaser, va doc dong ho tuong).
 #
 # `tsc --noEmit` khong loc theo file staged duoc: kiem mot phan cay kieu thi vo nghia.
+#
+# Chi chay khi co file cua app trong client/ dang staged: app (package.json, tsconfig)
+# nam o client/; automation-testing/ co typecheck rieng va khong dung config cua app.
 #
 # Day la phan hoi nhanh, KHONG phai rao chan: `core.hooksPath` khong theo duoc
 # `git clone`, va `--no-verify` bo qua duoc. Rao chan that la CI.
 set -uo pipefail
 
-cd "$(git rev-parse --show-toplevel)" || exit 1
+root="$(git rev-parse --show-toplevel)" || exit 1
 
-if ! git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.mjs' | grep -q .; then
+if ! git -C "$root" diff --cached --name-only --diff-filter=ACMR -- 'client/*.ts' 'client/*.mjs' | grep -q .; then
   exit 0
 fi
 
+cd "$root/client" || exit 1
+
 if ! pnpm --silent lint:core; then
   printf '\n  Commit bi chan: core/ pha ranh gioi kien truc.\n' >&2
-  printf '  Xem lai: pnpm lint:core\n\n' >&2
+  printf '  Xem lai: cd client && pnpm lint:core\n\n' >&2
   exit 1
 fi
 
 if ! pnpm exec tsc --noEmit; then
   printf '\n  Commit bi chan: tsc bao loi kieu.\n' >&2
-  printf '  Xem lai: pnpm exec tsc --noEmit\n' >&2
+  printf '  Xem lai: cd client && pnpm exec tsc --noEmit\n' >&2
   printf '  Bo qua co chu dich (hiem): git commit --no-verify\n\n' >&2
   exit 1
 fi

@@ -19,15 +19,23 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # The game app lives in client/; every `run:` step works from there.
+    defaults:
+      run:
+        working-directory: client
     steps:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
+        with:
+          # No package.json at the root: the app lives in client/.
+          package_json_file: client/package.json
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: client/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
 
@@ -57,7 +65,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: client/dist
 
   deploy:
     needs: build

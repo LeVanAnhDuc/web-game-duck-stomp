@@ -14,6 +14,11 @@ concurrency:
 permissions:
   contents: read
 
+# The game app lives in client/; every `run:` step works from there.
+defaults:
+  run:
+    working-directory: client
+
 jobs:
   # Tách ba job có chủ ý: chúng chạy song song, và "bất biến bị phá", "test đỏ",
   # "bundle phình" là ba tin khác nhau, không nên xếp hàng chờ nhau.
@@ -24,11 +29,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
+        with:
+          # No package.json at the root: the app lives in client/.
+          package_json_file: client/package.json
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: client/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
 
@@ -45,7 +54,7 @@ jobs:
         run: |
           pnpm levels
           git diff --exit-code -- assets/levels/ || {
-            echo "::error::assets/levels/ khác với output của scripts/make-level.mjs. Sửa bản đồ ASCII rồi chạy 'pnpm levels', đừng sửa tay JSON."
+            echo "::error::client/assets/levels/ khác với output của scripts/make-level.mjs. Sửa bản đồ ASCII rồi chạy 'pnpm levels', đừng sửa tay JSON."
             exit 1
           }
 
@@ -72,11 +81,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
+        with:
+          # No package.json at the root: the app lives in client/.
+          package_json_file: client/package.json
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: client/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
 
@@ -100,5 +113,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: playwright-report/
+          path: client/playwright-report/
           retention-days: 7

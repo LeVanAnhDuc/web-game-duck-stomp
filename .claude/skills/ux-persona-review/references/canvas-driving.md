@@ -4,7 +4,7 @@
 > **Trạng thái:** 🟢 đủ
 > **Đo lúc:** 2026-09-12 · playwright MCP (`plugin:playwright`) · Chromium · Vite dev
 > `127.0.0.1:4173` và preview bản build `127.0.0.1:4174`
-> **Cập nhật khi:** đổi công cụ trình duyệt · đổi cách nhận input trong `src/game/input.ts`
+> **Cập nhật khi:** đổi công cụ trình duyệt · đổi cách nhận input trong `client/src/game/input.ts`
 > · sửa cái đã ghi ở §Điểm đã hỏng lúc đo
 
 Mọi con số trong file này là **đo được**, không phải suy ra. Chỗ nào chưa đo thì ghi
@@ -41,7 +41,7 @@ rác. Đó là lý do file này phải được đọc trước khi dispatch.
 **Lý do của hai dòng ❌ đầu:** Phaser đọc `key.isDown` mỗi frame. `press` không có
 `delay` là down+up trong cùng một tick, nên không frame nào thấy phím đang xuống.
 Menu thì bắt `keydown` (một sự kiện rời), nên menu vẫn ăn. Đây là cơ chế, không phải
-may rủi: nó sẽ đúng như vậy mãi (`src/game/input.ts:76`, `src/game/ui.ts:281`).
+may rủi: nó sẽ đúng như vậy mãi (`client/src/game/input.ts:76`, `client/src/game/ui.ts:281`).
 
 ## Công thức: chơi bằng bàn phím
 
@@ -94,7 +94,7 @@ await page.mouse.click(c.x + 128, c.y + 114);
 ```
 
 Ở 667×375 thì `c.x = 20`, `c.y = 11`, canvas 640×360 — nhưng **đo lại mỗi phiên**,
-vì zoom là số nguyên và nó nhảy bậc theo viewport (`src/core/scale.ts`).
+vì zoom là số nguyên và nó nhảy bậc theo viewport (`client/src/core/scale.ts`).
 
 Giữ ngón tay = `page.mouse.move` → `down` → `waitForTimeout` → `up`.
 `touchscreen` của Playwright **chỉ có `tap`, không giữ được**, nên ngay cả trong
@@ -122,7 +122,7 @@ thật; mặc định là chuột nhấn-giữ.
 ## Chờ cái gì, đọc cái gì
 
 Scene đang chạy được publish ra DOM: `document.documentElement.dataset.scene`, một
-trong `Boot·Preload·Title·WorldMap·Game·Hud·Pause·LevelComplete` (`src/main.ts:99`).
+trong `Boot·Preload·Title·WorldMap·Game·Hud·Pause·LevelComplete` (`client/src/main.ts:99`).
 Nó có trong **cả** bản production, và nó là thứ duy nhất cho biết "màn đã nạp xong"
 — cảnh chuyển trong canvas thì từ ngoài không thấy gì.
 
@@ -194,7 +194,7 @@ await p.addInitScript(() => {
 });
 ```
 
-Khoá và hình dạng: `src/core/storage.ts:19` và `src/core/scoring.ts:15`. Sai một
+Khoá và hình dạng: `client/src/core/storage.ts:19` và `client/src/core/scoring.ts:15`. Sai một
 trường thì save bị coi là rác và game xử như **chưa có save** — im lặng, không lỗi
 — nên sau khi gieo phải xác nhận Title hiện nút chơi tiếp. Persona **không** được
 biết mình đã bị gieo save; họ chỉ biết "hôm qua tôi có chơi".
@@ -204,8 +204,8 @@ localStorage sạch), đừng chỉ điều hướng lại.
 
 ## Rào an toàn ở game này
 
-- Game **không gọi `alert`/`confirm`/`prompt` ở đâu cả** (đã grep `src/` và
-  `index.html`), nên cái bẫy treo phiên kinh điển không có ở đây. Vẫn đừng mở
+- Game **không gọi `alert`/`confirm`/`prompt` ở đâu cả** (đã grep `client/src/` và
+  `client/index.html`), nên cái bẫy treo phiên kinh điển không có ở đây. Vẫn đừng mở
   DevTools dialog bằng tay.
 - Không có backend, không có tài khoản, không có gì gửi đi. Không có hành động nào
   không hoàn tác được, trừ **ghi đè save** — nên đừng chạy persona trên profile

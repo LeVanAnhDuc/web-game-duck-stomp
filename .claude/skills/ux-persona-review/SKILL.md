@@ -10,8 +10,8 @@ description: Use when you want to know how a real stranger experiences Duck Stom
 - Thư mục: `D:/Learn/web-app-ecosystem/web-game/web-game-platformer`
 - Port: dev `:4173` · preview bản build `:4174` (cả hai bind `127.0.0.1`, `--strictPort`)
 - Bật app:
-  - phiên thường → `pnpm dev --port 4173 --strictPort --host 127.0.0.1`
-  - phiên có throttle mạng → `pnpm build && pnpm preview --port 4174 --strictPort --host 127.0.0.1`
+  - phiên thường → `cd client && pnpm dev --port 4173 --strictPort --host 127.0.0.1`
+  - phiên có throttle mạng → `cd client && pnpm build && pnpm preview --port 4174 --strictPort --host 127.0.0.1`
     **Bắt buộc dùng bản build cho throttle.** Dev server trả module chưa bundle;
     Fast 3G trên dev server không tải xong trong 30s, và con số đó không nói gì về
     thứ người chơi thật tải. Đo 12.09.2026: bản build 8 request / 339 KB,
@@ -19,7 +19,7 @@ description: Use when you want to know how a real stranger experiences Duck Stom
 - Dấu hiệu nhận biết đúng app: `<title>` là `Duck Stomp`, và
   `document.documentElement.dataset.scene` trả về một trong
   `Boot·Preload·Title·WorldMap·Game·Hud·Pause·LevelComplete`. Không có thuộc tính đó
-  thì đang mở sai app — cả workspace này chỉ game này publish nó (`src/main.ts:99`).
+  thì đang mở sai app — cả workspace này chỉ game này publish nó (`client/src/main.ts:99`).
   Trang đúng có **một** `<canvas>` 640×360 letterbox giữa viewport 667×375.
 - Email dùng-một-lần cho persona: ⚪ **không áp dụng.** Game không có một ô nhập nào,
   không tài khoản, không thu bất kỳ PII nào (NFR-DATA-01). Persona nào được "nhắc"

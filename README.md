@@ -59,7 +59,10 @@ real device and guessing wrong hurts somebody either way.
 
 ## Commands
 
+The game app lives in `client/`; run these from there.
+
 ```bash
+cd client
 pnpm install --frozen-lockfile
 pnpm dev
 ```
@@ -68,10 +71,10 @@ Only `VITE_BASE_PATH` is needed, and there is no backend, datastore or API key. 
 optional Ducker ID sign-in is off unless `VITE_FEATURE_DUCKER_SIGN_IN=true` **and**
 `VITE_DUCKER_ISSUER`, `VITE_DUCKER_CLIENT_ID`, `VITE_DUCKER_SCOPE` and
 `VITE_DUCKER_PROFILE_PATH` are all set; none of them has a default, and the deploy
-workflow deliberately passes none of them. To try it locally, `cp .env.example .env`,
+workflow deliberately passes none of them. To try it locally, `cp client/.env.example client/.env`,
 fill in the client id registered in Ducker ID, add the dev origin
 (`http://localhost:5173`) to Ducker ID's `CORS_ORIGINS`, and run `pnpm dev`. See
-[`.env.example`](.env.example).
+[`client/.env.example`](client/.env.example).
 
 | Command | What it does |
 | --- | --- |
@@ -87,11 +90,11 @@ fill in the client id registered in Ducker ID, add the dev origin
 ## How it is put together
 
 ```
-src/core/     Pure TypeScript. Does not import Phaser, does not read the clock.
-              Movement, integer scaling, scoring, unlock rules, save, strings.
-src/game/     The Phaser layer: scenes, entities, input, audio, generated art.
-assets/levels/ Six Tiled JSON files. Levels are data, not code.
-docs/         Why any of this is the way it is.
+client/src/core/      Pure TypeScript. Does not import Phaser, does not read the clock.
+                      Movement, integer scaling, scoring, unlock rules, save, strings.
+client/src/game/      The Phaser layer: scenes, entities, input, audio, generated art.
+client/assets/levels/ Six Tiled JSON files. Levels are data, not code.
+docs/                 Why any of this is the way it is.
 ```
 
 Phaser 3.90 with Arcade Physics, TypeScript, Vite, Vitest and Playwright.
@@ -100,18 +103,18 @@ The boundary is the load-bearing part. Game feel is the thing most likely to
 regress and the most expensive thing to re-check by hand, so the movement state
 machine is a pure function of `(state, input, deltaTime, onGround)` and is covered
 by unit tests that run in milliseconds without a browser. `pnpm lint:core`
-fails the build if anything in `src/core/` imports Phaser, reads the wall clock, or
+fails the build if anything in `client/src/core/` imports Phaser, reads the wall clock, or
 calls `Math.random`.
 
 Two more consequences of that split are worth knowing before changing anything.
-Gravity belongs to `src/core/movement.ts`, not to Arcade Physics, which is why the
+Gravity belongs to `client/src/core/movement.ts`, not to Arcade Physics, which is why the
 whole vertical story — jump, early-release cut, terminal velocity — is testable.
 And gameplay only ever *emits* domain events: no collision callback touches the
 HUD, plays a sound, or writes a save. That is what lets the HUD be a separate
 scene at a different camera zoom without either knowing about the other.
 
-Adding a level does not touch code: drop a Tiled file in `assets/levels/` and add
-a node to the map. `scripts/make-level.mjs` authors the six levels as ASCII maps
+Adding a level does not touch code: drop a Tiled file in `client/assets/levels/` and add
+a node to the map. `client/scripts/make-level.mjs` authors the six levels as ASCII maps
 and refuses to emit one whose pit is wider than the jump arc.
 
 ## Art
@@ -120,7 +123,7 @@ All sprites are generated in code as placeholders. The intended art is the CC0
 [Pixel Adventure](https://pixelfrog-assets.itch.io/pixel-adventure-1) pack by
 Pixel Frog; itch.io serves it through a browser flow rather than a URL, so it is
 not wired up yet. Every texture sits behind one module, so swapping it in is a
-change to `src/game/textures.ts` and nothing else. See ADR-0006.
+change to `client/src/game/textures.ts` and nothing else. See ADR-0006.
 
 ## Releases and versioning
 
@@ -135,7 +138,8 @@ Three workflows, all in `.github/workflows/`:
 Versions come from Conventional Commit subjects, not from a hand-edited file. A
 `feat:` since the last tag bumps the minor, a `!` or `BREAKING CHANGE` bumps the
 major, anything else is a patch. Both steps are scripts in the repo so they can be
-exercised on a laptop rather than only by pushing:
+exercised on a laptop rather than only by pushing (from `client/`; they read the whole
+repo's history):
 
 ```bash
 pnpm release:next            # prints the tag the next release would carry, and why

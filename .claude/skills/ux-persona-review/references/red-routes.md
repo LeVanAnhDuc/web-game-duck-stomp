@@ -87,7 +87,7 @@ trung vị thô **không kèm mẫu số** thay vì bịa một tỉ lệ.
 | `why_red` | ADR-0003 bỏ hệ mạng và bỏ màn game over. Nếu hồi sinh không mượt thì chính quyết định đó sai, và cái giá phải trả nằm ở mọi màn. |
 | `status` | **live** |
 | `derived_from` | `docs/01-product/journeys.md:106` (US-04) · `docs/02-requirements/scope.md:28` (FR-06) · `:33` (FR-11) · `docs/decisions/0003-no-lives-checkpoint-respawn.md` |
-| ⚠️ lệch dữ liệu | US-04 mô tả "đã qua checkpoint ở màn 4", nhưng `assets/levels/level-4.json` **không có object `checkpoint` nào** — cả game chỉ màn 6 có một cái. Nên ở màn 1–5 hồi sinh là về đầu màn. Route này viết theo dữ liệu, không theo US-04. Cần quyết: sửa US-04 hay thêm checkpoint. |
+| ⚠️ lệch dữ liệu | US-04 mô tả "đã qua checkpoint ở màn 4", nhưng `client/assets/levels/level-4.json` **không có object `checkpoint` nào** — cả game chỉ màn 6 có một cái. Nên ở màn 1–5 hồi sinh là về đầu màn. Route này viết theo dữ liệu, không theo US-04. Cần quyết: sửa US-04 hay thêm checkpoint. |
 
 ## RR-05 · Tìm ra phòng xu giấu
 
@@ -102,7 +102,7 @@ trung vị thô **không kèm mẫu số** thay vì bịa một tỉ lệ.
 | `par_time_s` | ⚪ chưa đo |
 | `why_red` | Đây là chỗ duy nhất game **dạy bằng bố cục** thay vì bằng chữ (`overview.md` §4: không có màn hướng dẫn bằng chữ). Không ai tự hiểu "đường chạy dài là lời mời" thì cả cách dạy đó không hoạt động — mà nó là cách dạy duy nhất game có. |
 | `status` | **live** — nhưng chấp nhận trước: không tìm ra **là** một kết quả hợp lệ (US-05 nói rõ), không phải một thất bại phải chữa |
-| `derived_from` | `docs/01-product/journeys.md:130` (US-05) · `docs/02-requirements/scope.md:27` (FR-05) · `:29` (FR-07) · `assets/levels/level-3.json` |
+| `derived_from` | `docs/01-product/journeys.md:130` (US-05) · `docs/02-requirements/scope.md:27` (FR-05) · `:29` (FR-07) · `client/assets/levels/level-3.json` |
 
 ---
 
