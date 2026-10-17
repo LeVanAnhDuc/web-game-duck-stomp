@@ -418,6 +418,26 @@ export class GamePage extends BasePage {
     await this.page.evaluate((v) => (window as any).duckstomp.scene.getScene("Game").player.setPowered(v), on);
   }
 
+  /** Puts the player on the goal flag and waits for the level-clear card. @dev-build */
+  async reachGoal(): Promise<void> {
+    const goal = (await this.levelObjects("goal"))[0];
+    if (goal === undefined) throw new Error("level has no goal");
+    await this.teleport(goal.x, goal.y);
+    await this.waitForActive(SCENE.levelComplete);
+  }
+
+  /** Picks up the first loose coin of the level and waits for the HUD to count it. @dev-build */
+  async takeCoin(index = 0): Promise<void> {
+    const coin = (await this.levelObjects("coin"))[index];
+    if (coin === undefined) throw new Error(`level has no coin #${index}`);
+    const before = (await this.state()).coins;
+    await this.teleport(coin.x, coin.y);
+    await this.page.waitForFunction(
+      (n) => (window as any).duckstomp.scene.getScene("Game").coinsCollected > n,
+      before,
+    );
+  }
+
   /** The HUD as drawn: hearts (full count), coin label, clock. @dev-build */
   async hud(): Promise<{ hearts: number; coins: string; clock: string }> {
     return this.page.evaluate(() => {
