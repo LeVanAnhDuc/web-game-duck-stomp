@@ -288,6 +288,18 @@ export class GamePage extends BasePage {
     else await this.page.mouse.click(x, y);
   }
 
+  /** Captions of the menu buttons in a scene whose focus ring is drawn — a visible focus means exactly one. @dev-build */
+  async focusedButtons(key: SceneKey): Promise<string[]> {
+    return this.page.evaluate((k) => {
+      const scene = (window as any).duckstomp?.scene.getScene(k);
+      if (!scene) return [];
+      return scene.children.list
+        .filter((o: any) => o.type === "Container" && o.ring !== undefined && o.caption !== undefined)
+        .filter((b: any) => b.ring.visible === true)
+        .map((b: any) => b.caption.text as string);
+    }, key);
+  }
+
   /** Page-coordinate centres of the six map nodes, in level order. @dev-build */
   async mapNodes(): Promise<Array<{ x: number; y: number }>> {
     return this.page.evaluate(() => {
@@ -326,6 +338,29 @@ export class GamePage extends BasePage {
   /** True when the START button on the map accepts input. @dev-build */
   async startEnabled(): Promise<boolean> {
     return this.page.evaluate(() => (window as any).duckstomp.scene.getScene("WorldMap").startButton.enabled === true);
+  }
+
+  /**
+   * Starts sampling the map's trail every animation frame while the map runs, keeping the smallest value seen — so a
+   * 400 ms animation cannot slip between two reads on a slow machine. Read with `trailMin()`. @dev-build
+   */
+  async sampleTrail(): Promise<void> {
+    await this.page.evaluate(() => {
+      (window as any).__trailMin = Number.POSITIVE_INFINITY;
+      const tick = (): void => {
+        const game = (window as any).duckstomp;
+        if (game?.scene.isActive("WorldMap")) {
+          const p = game.scene.getScene("WorldMap").trailProgress as number;
+          (window as any).__trailMin = Math.min((window as any).__trailMin, p);
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  async trailMin(): Promise<number> {
+    return this.page.evaluate(() => (window as any).__trailMin as number);
   }
 
   /** How much of the freshly unlocked trail is drawn (0…1); 1 when nothing animates. @dev-build */
