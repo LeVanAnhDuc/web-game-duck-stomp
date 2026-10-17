@@ -570,6 +570,282 @@ export class GamePage extends BasePage {
     );
   }
 
+  /**
+   * The level's enemies as they are right now: kind (walker / spiker / flyer, from the texture the game drew), centre,
+   * top of the hitbox, whether the game counts it as stompable, and whether its body is still live. @dev-build
+   */
+  async enemies(): Promise<Array<{ kind: string; x: number; y: number; top: number; stompable: boolean; alive: boolean }>> {
+    return this.page.evaluate(() => {
+      const play = (window as any).duckstomp.scene.getScene("Game");
+      return play.enemies.getChildren().map((e: any) => ({
+        kind: String(e.texture.key).replace(/^tex-/, ""),
+        x: e.x,
+        y: e.y,
+        top: e.body.top,
+        stompable: e.stompable === true,
+        alive: e.body.enable === true && e.active === true,
+      }));
+    });
+  }
+
+  /**
+   * Keeps only the `nth` enemy of a kind (creation order, as placed in the level file), frozen where it stands, and
+   * removes every other enemy. Call right after the level starts: walkers patrol towards the spawn point, and on a slow
+   * machine one reaches the player before a later freeze would. @dev-build
+   */
+  async keepOnlyEnemy(kind: string, nth = 0): Promise<void> {
+    await this.page.evaluate(
+      ([k, n]) => {
+        const play = (window as any).duckstomp.scene.getScene("Game");
+        const all = play.enemies.getChildren().slice();
+        const target = all.filter((e: any) => String(e.texture.key) === `tex-${k}`)[n];
+        if (target === undefined) throw new Error(`no ${k} #${n} in this level`);
+        for (const e of all) if (e !== target) play.enemies.remove(e, true, true);
+        target.tick = () => undefined;
+        target.body.setVelocity(0, 0);
+      },
+      [kind, nth] as const,
+    );
+  }
+
+  /**
+   * Drops the player from `gap` px above a surface whose top edge is `top` (player hitbox is 16 px tall, centre
+   * origin), at column `x`. Falling a few pixels onto something is what landing on it means. @dev-build
+   */
+  async dropOnto(x: number, top: number, gap = 6): Promise<void> {
+    await this.teleport(x, top - 8 - gap);
+  }
+
+  /**
+   * Touches something once: puts the player at (x, y), and on the game step after the first contact the game reports
+   * (playerHit, powerUpLost or enemyStomped) moves it to `safe`. Without this, the knock-back can carry the player back
+   * onto the same enemy on a slow machine, and the case would be about the second touch, not the first. @dev-build
+   */
+  async brush(x: number, y: number, safe: { x: number; y: number }): Promise<void> {
+    await this.page.evaluate(
+      ([px, py, sx, sy]) => {
+        const play = (window as any).duckstomp.scene.getScene("Game");
+        const names = ["playerHit", "powerUpLost", "enemyStomped"];
+        const away = (): void => {
+          names.forEach((n) => play.events.off(n, onTouch));
+          play.sys.events.once("postupdate", () => play.player.body.reset(sx, sy));
+        };
+        const onTouch = (): void => away();
+        names.forEach((n) => play.events.once(n, onTouch));
+        play.player.body.reset(px, py);
+      },
+      [x, y, safe.x, safe.y] as const,
+    );
+  }
+
+  /**
+   * Jumps with the jump control held for exactly `steps` game steps (on-screen-control input, from inside the game
+   * loop), then reports how high the player rose above where it stood. Steps rather than real time: on a loaded
+   * machine a 2-frame key tap from outside lasts as many steps as the scheduler likes. @dev-build
+   */
+  async jumpRise(steps: number): Promise<number> {
+    return this.page.evaluate(
+      (held) =>
+        new Promise<number>((resolve, reject) => {
+          const play = (window as any).duckstomp.scene.getScene("Game");
+          const startY = play.player.y as number;
+          let top = startY;
+          let n = 0;
+          let left = false;
+          const onStep = (): void => {
+            n += 1;
+            if (n === 1) play.inputs.setTouch("jump", true);
+            if (n === 1 + held) play.inputs.setTouch("jump", false);
+            top = Math.min(top, play.player.y);
+            if (play.player.y < startY - 1) left = true;
+            const body = play.player.body;
+            if (left && n > held + 2 && (body.blocked.down || body.touching.down)) {
+              play.sys.events.off("preupdate", onStep);
+              resolve(startY - top);
+            }
+            if (n > 600) {
+              play.sys.events.off("preupdate", onStep);
+              play.inputs.setTouch("jump", false);
+              reject(new Error("jump never landed"));
+            }
+          };
+          play.sys.events.on("preupdate", onStep);
+        }),
+      steps,
+    );
+  }
+
+  /** Question blocks: centre, what they give, and whether they are spent. @dev-build */
+  async questionBlocks(): Promise<Array<{ x: number; y: number; gives: string; spent: boolean }>> {
+    return this.page.evaluate(() => {
+      const play = (window as any).duckstomp.scene.getScene("Game");
+      return play.blocks.getChildren().map((b: any) => ({ x: b.x, y: b.y, gives: b.gives, spent: b.spent === true }));
+    });
+  }
+
+  /** Cracked blocks still standing (a broken one turns its body off, then is destroyed). @dev-build */
+  async crackedBlocks(): Promise<Array<{ x: number; y: number; solid: boolean }>> {
+    return this.page.evaluate(() => {
+      const play = (window as any).duckstomp.scene.getScene("Game");
+      return play.cracked.getChildren().map((b: any) => ({ x: b.x, y: b.y, solid: b.body?.enable === true }));
+    });
+  }
+
+  /** Power-ups lying in the level (from a "!" block). @dev-build */
+  async powerUps(): Promise<Array<{ x: number; y: number }>> {
+    return this.page.evaluate(() => {
+      const play = (window as any).duckstomp.scene.getScene("Game");
+      return play.powerUps.getChildren().filter((p: any) => p.active).map((p: any) => ({ x: p.x, y: p.y }));
+    });
+  }
+
+  /** The player's sprite texture: `player` or `player-powered` (the gold outline). @dev-build */
+  async playerLook(): Promise<string> {
+    return this.page.evaluate(() =>
+      String((window as any).duckstomp.scene.getScene("Game").player.texture.key).replace(/^tex-/, ""),
+    );
+  }
+
+  /**
+   * Starts sampling the player's highest point (smallest y) every animation frame, from inside the page, so a jump's
+   * apex cannot slip between two reads from outside. Read and reset with `apex()`. @dev-build
+   */
+  async sampleApex(): Promise<void> {
+    await this.page.evaluate(() => {
+      (window as any).__apex = Number.POSITIVE_INFINITY;
+      const tick = (): void => {
+        const play = (window as any).duckstomp?.scene.getScene("Game");
+        if (play?.player) (window as any).__apex = Math.min((window as any).__apex, play.player.y);
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  /** Highest point (smallest y) since the last call, then resets the sampler. @dev-build */
+  async apex(): Promise<number> {
+    return this.page.evaluate(() => {
+      const v = (window as any).__apex as number;
+      (window as any).__apex = Number.POSITIVE_INFINITY;
+      return v;
+    });
+  }
+
+  /**
+   * Jump buffer, timed on the game's own clock: drops the player from `dropPx` above standing height `groundY`, and on
+   * the first game step where the player is within `pressAbovePx` of the ground, presses jump through the game's
+   * on-screen-control input (`InputManager.setTouch`) and keeps it held. Reports how many ms of game time passed
+   * between the step that read the press and the step that landed, and whether a jump started on landing with no
+   * further press.
+   *
+   * Pressed from inside the game loop because the forgiveness window is 110 ms — a press sent from the test process
+   * lands a variable number of frames late, which would make the case measure the transport, not the game. The press is
+   * made on `preupdate` (read by this step's GameScene.update); ground contact is read on `postupdate`, after this
+   * step's physics, i.e. exactly what GameScene.update saw. @dev-build
+   */
+  async bufferedJump(x: number, groundY: number, dropPx: number, pressAbovePx: number): Promise<{ pressToLandMs: number; jumpedOnLanding: boolean }> {
+    return this.page.evaluate(
+      ([px, gy, drop, above]) =>
+        new Promise((resolve, reject) => {
+          const play = (window as any).duckstomp.scene.getScene("Game");
+          const events = play.sys.events;
+          let clock = 0;
+          let pressAt = -1;
+          let landAt = -1;
+          let after = 0;
+          let jumped = false;
+          const stop = (): void => {
+            events.off("preupdate", before);
+            events.off("postupdate", afterStep);
+            play.inputs.setTouch("jump", false);
+          };
+          const before = (_time: number, delta: number): void => {
+            clock += Math.min(delta, 50);
+            if (pressAt < 0 && play.player.y >= gy - above) {
+              pressAt = clock;
+              play.inputs.setTouch("jump", true);
+            }
+            if (clock > 3000) {
+              stop();
+              reject(new Error("player never landed"));
+            }
+          };
+          const afterStep = (): void => {
+            const body = play.player.body;
+            if (pressAt >= 0 && landAt < 0 && (body.blocked.down === true || body.touching.down === true)) landAt = clock;
+            if (landAt < 0) return;
+            if (play.moveState.vy < 0) jumped = true;
+            after += 1;
+            if (after >= 6) {
+              stop();
+              resolve({ pressToLandMs: landAt - pressAt, jumpedOnLanding: jumped });
+            }
+          };
+          play.player.body.reset(px, gy - drop);
+          events.on("preupdate", before);
+          events.on("postupdate", afterStep);
+        }),
+      [x, groundY, dropPx, pressAbovePx] as const,
+    );
+  }
+
+  /**
+   * Coyote time, timed on the game's own clock: from standing at `startX`, runs right (on-screen-control input) off a
+   * ledge whose right edge is `ledgeRightX`, and presses jump once the body is past the ledge and `msAfterLedge` ms of
+   * game time have passed since the last step the game counted the player as grounded (the moment coyote time starts
+   * counting down). Reports whether a jump started, and how long after that last grounded step the press was read.
+   * Same pre/post-update split as `bufferedJump`. @dev-build
+   */
+  async coyoteJump(startX: number, ledgeRightX: number, msAfterLedge: number): Promise<{ jumped: boolean; pressedAfterMs: number }> {
+    return this.page.evaluate(
+      ([sx, edge, wait]) =>
+        new Promise((resolve, reject) => {
+          const play = (window as any).duckstomp.scene.getScene("Game");
+          const events = play.sys.events;
+          let clock = 0;
+          let lastGround = 0;
+          let pastEdge = false;
+          let pressAt = -1;
+          let after = 0;
+          let jumped = false;
+          const stop = (): void => {
+            events.off("preupdate", before);
+            events.off("postupdate", afterStep);
+            play.inputs.setTouch("right", false);
+            play.inputs.setTouch("jump", false);
+          };
+          const before = (_time: number, delta: number): void => {
+            clock += Math.min(delta, 50);
+            if (pressAt < 0 && pastEdge && clock - lastGround >= wait) {
+              pressAt = clock;
+              play.inputs.setTouch("jump", true);
+            }
+            if (clock > 4000) {
+              stop();
+              reject(new Error("player never left the ledge"));
+            }
+          };
+          const afterStep = (): void => {
+            const body = play.player.body;
+            if (body.blocked.down === true || body.touching.down === true) lastGround = clock;
+            if (body.left > edge) pastEdge = true;
+            if (pressAt < 0) return;
+            if (play.moveState.vy < 0) jumped = true;
+            after += 1;
+            if (after >= 4) {
+              stop();
+              resolve({ jumped, pressedAfterMs: pressAt - lastGround });
+            }
+          };
+          play.player.body.reset(sx, play.player.y);
+          play.inputs.setTouch("right", true);
+          events.on("preupdate", before);
+          events.on("postupdate", afterStep);
+        }),
+      [startX, ledgeRightX, msAfterLedge] as const,
+    );
+  }
+
   /** Puts the player on the goal flag and waits for the level-clear card. @dev-build */
   async reachGoal(): Promise<void> {
     const goal = (await this.levelObjects("goal"))[0];
