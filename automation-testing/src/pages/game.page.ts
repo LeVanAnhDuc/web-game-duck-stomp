@@ -71,6 +71,24 @@ export class GamePage extends BasePage {
     this.accountOverlay = page.locator("#account-overlay");
   }
 
+  // Ducker ID account overlay (ADR-0013) — real DOM above the canvas, title screen only.
+  signInButton(): Locator {
+    // Exact: the in-flight label "SIGNING IN..." also contains the words.
+    return this.page.getByRole("button", { name: "SIGN IN", exact: true });
+  }
+
+  accountButton(): Locator {
+    return this.page.getByRole("button", { name: "Ducker ID account" });
+  }
+
+  accountMenu(): Locator {
+    return this.page.getByRole("menu");
+  }
+
+  accountMenuItem(name: string): Locator {
+    return this.page.getByRole("menuitem", { name });
+  }
+
   /** Opens the game (relative, so the GitHub Pages base path is kept) and waits for the title screen. */
   async goto(query = ""): Promise<void> {
     await this.page.goto(`./${query}`);

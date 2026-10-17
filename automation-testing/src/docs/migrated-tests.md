@@ -10,11 +10,15 @@ một lần ở 667×375 và các khẳng định phụ thuộc khổ màn hình
 |---|---|---|
 | `tests/smoke.spec.ts` | `src/tests/e2e/boot/title.e2e.ts` (3 case → TC-BOOT-001/004/007; khẳng định bội số nguyên → `boot/scale.e2e.ts`) | đã chuẩn hóa |
 | `tests/touch-and-locked.spec.ts` | `src/tests/e2e/touch/controls.e2e.ts` (3 case → TC-TOUCH-002/003/005/008; CDP giữ ngón → `GamePage.touchDown`) | đã chuẩn hóa |
-| `tests/ducker-id-sign-in-off.spec.ts` | `src/tests/e2e/ducker-id/flag-off.e2e.ts` | chưa chuẩn hóa |
-| `tests/ducker-id-sign-in.spec.ts` | `src/tests/e2e/ducker-id/sign-in.e2e.ts` | chưa chuẩn hóa |
+| `tests/ducker-id-sign-in-off.spec.ts` | `src/tests/e2e/ducker-id/flag-off.e2e.ts` (TC-DUCKERID-001/002) | đã chuẩn hóa |
+| `tests/ducker-id-sign-in.spec.ts` | `src/tests/e2e/ducker-id/sign-in.e2e.ts` (TC-DUCKERID-003…012); issuer giả → `src/fixtures/issuer.fixture.ts` | đã chuẩn hóa |
 | `playwright.config.ts` (3 viewport, 2 webServer) | `playwright.config.ts` | gộp |
 
 Unit test (vitest, `client/src/**/*.test.ts`) ở lại `client/`: chúng thuộc về code.
+
+Case cũ bị đổi khi chuẩn hóa: "the overlay is gone once the game starts" từng gọi thẳng `scene.start` qua
+`window.duckstomp`; giờ đi bằng Enter như người chơi (TC-DUCKERID-012). "an IdP error leaves the player signed out"
+từng mở thẳng URL lỗi; giờ issuer giả từ chối qua redirect thật (TC-DUCKERID-007). Không case nào bị bỏ.
 
 ## Còn trỏ về nơi cũ
 
