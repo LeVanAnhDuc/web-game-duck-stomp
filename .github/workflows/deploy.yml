@@ -61,7 +61,7 @@ jobs:
       # KHÔNG dùng `enablement: true`: nó cần quyền admin repo mà GITHUB_TOKEN
       # không có, và sẽ đỏ với "Resource not accessible by integration". Bật Pages
       # là một bước một-lần làm ngoài workflow — xem ADR-0008.
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v3
         with:
